@@ -5,10 +5,20 @@ Documentation   This suite used for pulling all required docker image,
 
 
 *** Test Cases ***
-Pull all required docker image
-    # @{output}   Run And Return Rc And Output   docker-compose up
-    
-    ${result}   Run Process   docker-compose    pull
+Should pull all required docker image
+    Given we need to pull the EdgeX docker images
+    When pull the docker images
+    Then return the success code 0
+
+
+*** Keywords ***
+We need to pull the EdgeX docker images
+    Log    "Start to pull image ..."
+
+Pull the docker images
+    ${result}  Run Process   docker-compose  pull 
     Log    ${result.stderr}
-    Log    ${result.rc}
-    Should Be Equal As Integers     ${result.rc}	0
+    Set Test Variable  ${RESULT_CODE}    ${result.rc}
+
+Then return the success code ${code}
+    Should Be Equal As Integers    ${RESULT_CODE}    ${code}
