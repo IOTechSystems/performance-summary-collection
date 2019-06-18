@@ -7,7 +7,7 @@ import pytz
 class TestMathFunc(unittest.TestCase):
 
     def test_find(self):
-        regexMsg = "\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z app=\S* \S*=\S* msg=\"Service started in:"
+        regexMsg = "\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z app=\S* \S*=\S* msg=\"Service started in: \d*.\d*ms"
         regexTime = "\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6}"
 
         msg = """

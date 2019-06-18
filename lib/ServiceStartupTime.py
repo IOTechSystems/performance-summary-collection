@@ -6,11 +6,12 @@ from robot.api import logger
 from robot.libraries import Process
 import docker
 import re
+import time
 
 client = docker.from_env()
 
 
-regexMsg= r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z app=\S* \S*=\S* msg=\"Service started in:"
+regexMsg= r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z app=\S* \S*=\S* msg=\"Service started in: \d*.\d*ms"
 regexTime= r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6}"
 
 services = {
@@ -39,10 +40,14 @@ class ServiceStartupTime(object):
         logger.info("\n --- Start time %s seconds ---" % self.start_time)
 
     def fetch_services_start_up_time_and_total_time(self):
+        # wait for service start
+        time.sleep( 5 )
         global result1
         result1 = get_services_start_up_time_and_total_time(self.start_time)
 
     def fetch_services_start_up_time_and_total_time_without_creating_containers(self):
+        # wait for service start
+        time.sleep( 5 )
         global result2
         result2 = get_services_start_up_time_and_total_time(self.start_time)    
 
@@ -125,7 +130,7 @@ def fetch_started_time_by_service(service):
             return 0
         startedMsg = x[len(x)-1]
 
-        # logger.console("startedMsg is: "+startedMsg)
+        logger.info("[Service started msg] "+startedMsg)
         # 2019-06-18T07:17:18.524567
         x = re.findall(services[containerName]["regexTime"], startedMsg)
         if (len(x)==0):
