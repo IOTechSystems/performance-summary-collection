@@ -19,14 +19,14 @@ Get footprint and CPU, memory usage
 
 *** Keywords ***
 Deploy EdgeX
-    ${result} =   Run Process     docker-compose      up    -d   
+    ${result} =  Run Process    docker-compose    up    -d
     Log    ${result.stderr}
-    Should Be Equal As Integers     ${result.rc}	0
+    Should Be Equal As Integers    ${result.rc}    0
 
 EdgeX deployed
     Log    "EdgeX is deployed"
 
 Shutdown EdgeX
-    ${result}  Run Process   docker-compose  down 
+    ${result} =  Run Process    docker-compose    down
     Log    ${result.stderr}
-    Should Be Equal As Integers	     ${result.rc}	0
+    Should Be Equal As Integers	     ${result.rc}  0

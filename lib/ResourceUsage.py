@@ -1,9 +1,7 @@
 import traceback
-import time
 from robot.api import logger
 import docker
 
-# client = docker.APIClient(base_url="unix://var/run/docker.sock")
 client = docker.from_env()
 
 services = {
@@ -111,12 +109,13 @@ def fetch_by_service(service):
         # logger.console("--- Binary size %s Bytes ---" % binarySize)
         # logger.console("--- CPU usage %d Bytes ---" % cpuUsage)
         # logger.console("--- Memory usage %d Bytes ---" % memoryUsage)
-    except docker.errors.NotFound:
+    except docker.errors.NotFound as error:
         services[containerName]["imageFootprint"] = 0
         services[containerName]["binaryFootprint"] = 0
         services[containerName]["cpuUsage"] = 0
         services[containerName]["memoryUsage"] = 0
         logger.console(containerName + " container not found")
+        logger.console(error)
     except:
         traceback.print_exc()
 
