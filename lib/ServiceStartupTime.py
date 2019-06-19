@@ -10,8 +10,11 @@ import re
 client = docker.from_env()
 
 
-regexMsg= r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z app=\S* \S*=\S* msg=\"Service started in: \d*.\d*ms"
+regexMsg= r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z app=\S* \S*=\S* msg=\"Service started in: \d*.\d*m?s"
 regexTime= r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{0,6}"
+
+ruleengineRegexMsg = r"\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+\] boot - \d  INFO \[main\] --- Application: Started Application in \d+.\d+ seconds"
+ruleengineRegexTime = r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{0,3}"
 
 services = {
     "edgex-core-consul":{"regexMsg":regexMsg,"regexTime":regexTime},
@@ -24,7 +27,7 @@ services = {
     "edgex-support-scheduler": {"regexMsg":regexMsg,"regexTime":regexTime},
     "edgex-export-client": {"regexMsg":regexMsg,"regexTime":regexTime},
     "edgex-export-distro": {"regexMsg":regexMsg,"regexTime":regexTime},
-    "edgex-support-rulesengine": {"regexMsg":regexMsg,"regexTime":regexTime},
+    "edgex-support-rulesengine": {"regexMsg":ruleengineRegexMsg,"regexTime":ruleengineRegexTime},
     "edgex-device-virtual": {"regexMsg":regexMsg,"regexTime":regexTime},
 }
 
@@ -54,13 +57,13 @@ class ServiceStartupTime(object):
 
     def fetch_services_start_up_time_and_total_time(self):
         # wait for service start
-        time.sleep( 5 )
+        time.sleep( 25 )
         global result1
         result1 = get_services_start_up_time_and_total_time(self.start_time, services)
 
     def fetch_services_start_up_time_and_total_time_without_creating_containers(self):
         # wait for service start
-        time.sleep( 5 )
+        time.sleep( 25 )
         global result2
         result2 = get_services_start_up_time_and_total_time(self.start_time, services)    
 
@@ -165,7 +168,11 @@ def fetch_started_time_by_service(service):
             return 0
         startedDateTime = x[len(x)-1]
         # logger.console("startedDateTime is: "+startedDateTime)
-        dt = datetime.strptime(startedDateTime, "%Y-%m-%dT%H:%M:%S.%f").replace(tzinfo=pytz.UTC)
+
+        datePattern = "%Y-%m-%dT%H:%M:%S.%f"
+        if "T" not in startedDateTime: 
+            datePattern = "%Y-%m-%d %H:%M:%S.%f"
+        dt = datetime.strptime(startedDateTime, datePattern).replace(tzinfo=pytz.UTC)
 
         startedTime = dt.timestamp()
 
