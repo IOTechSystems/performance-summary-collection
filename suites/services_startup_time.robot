@@ -3,6 +3,7 @@ Documentation   Measure the startup time for starting all services at once
 ...             Get service start up time ,total time with creating containers
 ...             Get service start up time ,total time without creating containers
 Library         Process
+Library         ../lib/EdgeX.py
 Library         ../lib/ServiceStartupTime.py
 Suite Teardown  Shutdown EdgeX
 
@@ -23,26 +24,3 @@ Get service start up time ,total time without creating containers
 
 Show comparison tables for start up time with/without creating containers
     show the comparison table
-
-*** Keywords ***
-Deploy EdgeX
-    ${result} =   Run Process     docker-compose      up    -d   
-    Log    ${result.stderr}
-    Should Be Equal As Integers     ${result.rc}	0
-
-EdgeX is deployed
-    Deploy EdgeX
-
-EdgeX is started
-    Deploy EdgeX
-
-Shutdown EdgeX
-    ${result}      Run Process   docker-compose  down 
-    Log    ${result.stdout}
-    Log    ${result.stderr}
-    Should Be Equal As Integers	     ${result.rc}	0
-
-Stop EdgeX
-    ${result}       Run Process   docker-compose  stop 
-    Log    ${result.stderr}
-    Should Be Equal As Integers	     ${result.rc}	0

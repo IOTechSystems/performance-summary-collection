@@ -1,12 +1,11 @@
+from robot.api import logger
 import traceback
 import time
 from datetime import datetime
 import pytz
-from robot.api import logger
-from robot.libraries import Process
+
 import docker
 import re
-import time
 
 client = docker.from_env()
 
@@ -29,6 +28,20 @@ services = {
     "edgex-device-virtual": {"regexMsg":regexMsg,"regexTime":regexTime},
 }
 
+services_exclude_ruleengine = {
+    "edgex-core-consul":{"regexMsg":regexMsg,"regexTime":regexTime},
+    "edgex-mongo": {"regexMsg":regexMsg,"regexTime":regexTime},
+    "edgex-core-data": {"regexMsg":regexMsg,"regexTime":regexTime},
+    "edgex-core-metadata": {"regexMsg":regexMsg,"regexTime":regexTime},
+    "edgex-core-command": {"regexMsg":regexMsg,"regexTime":regexTime},
+    "edgex-support-logging": {"regexMsg":regexMsg,"regexTime":regexTime},
+    "edgex-support-notifications": {"regexMsg":regexMsg,"regexTime":regexTime},
+    "edgex-support-scheduler": {"regexMsg":regexMsg,"regexTime":regexTime},
+    "edgex-export-client": {"regexMsg":regexMsg,"regexTime":regexTime},
+    "edgex-export-distro": {"regexMsg":regexMsg,"regexTime":regexTime},
+    "edgex-device-virtual": {"regexMsg":regexMsg,"regexTime":regexTime},
+}
+
 
 
 class ServiceStartupTime(object):
@@ -43,13 +56,28 @@ class ServiceStartupTime(object):
         # wait for service start
         time.sleep( 5 )
         global result1
-        result1 = get_services_start_up_time_and_total_time(self.start_time)
+        result1 = get_services_start_up_time_and_total_time(self.start_time, services)
 
     def fetch_services_start_up_time_and_total_time_without_creating_containers(self):
         # wait for service start
         time.sleep( 5 )
         global result2
-        result2 = get_services_start_up_time_and_total_time(self.start_time)    
+        result2 = get_services_start_up_time_and_total_time(self.start_time, services)    
+
+    # Exclude ruleengine
+    def fetch_services_start_up_time_and_total_time_exclude_ruleengine(self):
+        # wait for service start
+        time.sleep( 5 )
+        global result1
+        result1 = get_services_start_up_time_and_total_time(self.start_time, services_exclude_ruleengine)
+
+    # Exclude ruleengine
+    def fetch_services_start_up_time_and_total_time_without_creating_containers_exclude_ruleengine(self):
+        # wait for service start
+        time.sleep( 5 )
+        global result2
+        result2 = get_services_start_up_time_and_total_time(self.start_time, services_exclude_ruleengine)    
+
 
     def show_the_summary_table(self):
         show_the_summary_table_in_html(result1)
@@ -101,9 +129,9 @@ def findTotalStartupTime(result):
     
     return largestTime
 
-def get_services_start_up_time_and_total_time(start_time):
+def get_services_start_up_time_and_total_time(start_time,containers):
     result = {}
-    for k in services:
+    for k in containers:
         startedTime = fetch_started_time_by_service(k)
         if(startedTime==0):
             result[k] = 0
