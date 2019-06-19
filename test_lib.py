@@ -7,8 +7,8 @@ import pytz
 class TestMathFunc(unittest.TestCase):
 
     def test_find(self):
-        regexMsg = "\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z app=\S* \S*=\S* msg=\"Service started in: \d*.\d*ms"
-        regexTime = "\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6}"
+        regexMsg = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z app=\S* \S*=\S* msg=\"Service started in: \d*.\d*ms"
+        regexTime = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{0,6}"
 
         msg = """
             level=INFO ts=2019-06-18T07:17:18.5245679Z app=edgex-core-data source=main.go:70 msg="Service started in: 120.62ms  resolved..."\nlevel=Service started in" 
@@ -21,6 +21,8 @@ class TestMathFunc(unittest.TestCase):
 
         x = re.findall(regexTime, startedMsg)
         startedDateTime = x[len(x)-1]
+        print(startedDateTime)
+
         dt = datetime.strptime(startedDateTime, '%Y-%m-%dT%H:%M:%S.%f').replace(tzinfo=pytz.UTC)
         startedTimestamp = dt.timestamp()
         print(startedTimestamp)

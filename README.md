@@ -7,9 +7,10 @@ Test case
 https://docs.google.com/spreadsheets/d/1ScN7urohtlbwL9ns-5rSxjRy5hIL3j3Jr4eyLeD000w/edit#gid=0
 
 
-## Robot framework
+## Install
 
-https://github.com/robotframework/robotframework/blob/master/INSTALL.rst
+* docker, docker-compose
+* Robot framework https://github.com/robotframework/robotframework/blob/master/INSTALL.rst
 
 ## Run Robot
 

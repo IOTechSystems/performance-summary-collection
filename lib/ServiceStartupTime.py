@@ -11,7 +11,7 @@ client = docker.from_env()
 
 
 regexMsg= r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z app=\S* \S*=\S* msg=\"Service started in: \d*.\d*ms"
-regexTime= r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{6}"
+regexTime= r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{0,6}"
 
 services = {
     "edgex-core-consul":{"regexMsg":regexMsg,"regexTime":regexTime},

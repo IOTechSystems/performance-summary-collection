@@ -117,6 +117,7 @@ def fetch_by_service(service):
         logger.console(containerName + " container not found")
         logger.console(error)
     except:
+        logger.console(containerName + " fail to fetch resource usage")
         traceback.print_exc()
 
 
