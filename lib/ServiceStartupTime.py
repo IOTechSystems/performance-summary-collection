@@ -191,6 +191,7 @@ def fetch_started_time_by_service(service):
     except docker.errors.NotFound as error:
         logger.console(error)
     except:
+        logger.console(containerName + " fail to fetch started time by_service")
         traceback.print_exc()
 
 def show_the_summary_table_in_html(result):
