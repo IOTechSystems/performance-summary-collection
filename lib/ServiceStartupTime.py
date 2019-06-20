@@ -161,7 +161,7 @@ def get_services_start_up_time_and_total_time(start_time,containers):
 
 def fetch_started_time_by_service(service):
     containerName = service
-    # logger.console("Fetch the service: "+containerName)
+    logger.info("Fetch the service: "+containerName,also_console=True)
     try:
         container = client.containers.get(containerName)
         msg = container.logs(until=int(time.time()))
@@ -172,13 +172,13 @@ def fetch_started_time_by_service(service):
             return 0
         startedMsg = x[len(x)-1]
 
-        logger.info("[Service started msg] "+startedMsg)
+        logger.info("[Service started msg] "+startedMsg,also_console=True)
         # 2019-06-18T07:17:18.524567
         x = re.findall(services[containerName]["regexTime"], startedMsg)
         if (len(x)==0):
             return 0
         startedDateTime = x[len(x)-1]
-        # logger.console("startedDateTime is: "+startedDateTime)
+        logger.info("startedDateTime is: "+startedDateTime,also_console=True)
 
         datePattern = "%Y-%m-%dT%H:%M:%S.%f"
         if "T" not in startedDateTime: 
