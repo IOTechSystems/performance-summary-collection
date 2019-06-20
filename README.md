@@ -9,12 +9,12 @@ https://docs.google.com/spreadsheets/d/1ScN7urohtlbwL9ns-5rSxjRy5hIL3j3Jr4eyLeD0
 
 ## Install
 
-* docker, docker-compose
-* Robot framework https://github.com/robotframework/robotframework/blob/master/INSTALL.rst
+* sudo apt install python3-pip
+* python3 -m pip install robotframework
 
 * python lib
-  * pip install docker
-  * pip install pytz
+  * pip3 install docker
+  * pip3 install pytz
 
 
 ## Run Robot
