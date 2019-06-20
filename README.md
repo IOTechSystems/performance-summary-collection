@@ -12,6 +12,11 @@ https://docs.google.com/spreadsheets/d/1ScN7urohtlbwL9ns-5rSxjRy5hIL3j3Jr4eyLeD0
 * docker, docker-compose
 * Robot framework https://github.com/robotframework/robotframework/blob/master/INSTALL.rst
 
+* python lib
+  * pip install docker
+  * pip install pytz
+
+
 ## Run Robot
 
 ```

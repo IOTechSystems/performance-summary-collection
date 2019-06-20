@@ -124,6 +124,17 @@ class ServiceStartupTime(object):
         html = html + "</table>"
         logger.info(html, html=True)
 
+    def fetch_statup_time_from_service(self,service):
+        time.sleep( 5 )
+        startedTime = fetch_started_time_by_service(service)    
+
+        startupTime = 0
+        if(startedTime==0):
+            logger.console('StartupTime: '+ startupTime)
+        else:
+            startupTime = startedTime - self.start_time
+            logger.console('StartupTime: '+ startupTime)
+
 def findTotalStartupTime(result):
     largestTime = 0
     for k in result:

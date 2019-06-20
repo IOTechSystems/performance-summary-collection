@@ -18,11 +18,21 @@ class EdgeX(object):
     def shutdown_edgex(self):
         cmd = ['docker-compose', 'down']
         run_command(cmd)
+        cmd = ['docker', 'volume', 'prune', '-f']
+        run_command(cmd)
 
     def stop_edgex(self):
         cmd = ['docker-compose', 'stop']
         run_command(cmd )
 
+    def dependecy_services_are_deployed(self, *args):
+        for arg in args:
+            cmd = ['docker-compose', 'up', '-d', arg]
+            run_command(cmd)
+
+    def deploy_service(self, service):
+        cmd = ['docker-compose', 'up', '-d', service]
+        run_command(cmd)
 
 def run_command(cmd):
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
