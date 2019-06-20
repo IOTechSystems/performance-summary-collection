@@ -130,10 +130,10 @@ class ServiceStartupTime(object):
 
         startupTime = 0
         if(startedTime==0):
-            logger.console('StartupTime: '+ startupTime)
+            logger.console('StartupTime: '+ str(startupTime))
         else:
             startupTime = startedTime - self.start_time
-            logger.console('StartupTime: '+ startupTime)
+            logger.console('StartupTime: '+ str(startupTime))
 
 def findTotalStartupTime(result):
     largestTime = 0
