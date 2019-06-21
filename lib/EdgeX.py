@@ -1,37 +1,48 @@
 from robot.api import logger
 import subprocess
+import os
+
+# docker run --rm -v $PWD:$PWD -w $PWD -v /var/run/docker.sock:/var/run/docker.sock docker/compose:1.24.0 up -d
 
 class EdgeX(object):
     
     def pull_the_edgex_docker_images(self):
-        cmd = ['docker-compose', 'pull']
+        cmd = docker_compose_cmd()
+        cmd.append('pull')
         run_command(cmd)
 
     def edgex_is_deployed(self):
-        cmd = ['docker-compose', 'up', '-d']
+        cmd = docker_compose_cmd()
+        cmd.extend(['up','-d'])
         run_command(cmd)
 
     def edgex_is_deployed_exclude_ruleengine(self):
-        cmd = ['docker-compose', '-f', 'docker-compose-exclude-ruleengine.yml', 'up', '-d']
+        cmd = docker_compose_cmd()
+        cmd.extend(['-f', 'docker-compose-exclude-ruleengine.yml', 'up', '-d'])
         run_command(cmd)
 
     def shutdown_edgex(self):
-        cmd = ['docker-compose', 'down']
+        cmd = docker_compose_cmd()
+        cmd.append('down')
         run_command(cmd)
+
         cmd = ['docker', 'volume', 'prune', '-f']
         run_command(cmd)
 
     def stop_edgex(self):
-        cmd = ['docker-compose', 'stop']
+        cmd = docker_compose_cmd()
+        cmd.append('stop')
         run_command(cmd )
 
     def dependecy_services_are_deployed(self, *args):
         for arg in args:
-            cmd = ['docker-compose', 'up', '-d', arg]
-            run_command(cmd)
+            cmd = docker_compose_cmd()
+            cmd.extend(['up', '-d', arg])
+            run_command(cmd )
 
     def deploy_service(self, service):
-        cmd = ['docker-compose', 'up', '-d', service]
+        cmd = docker_compose_cmd()
+        cmd.extend(['up', '-d', service])
         run_command(cmd)
 
 def run_command(cmd):
@@ -48,3 +59,7 @@ def run_command(cmd):
         else:
             msg = "Success to execute cmd: "+ " ".join(str(x) for x in cmd)
             logger.info(msg) 
+
+def docker_compose_cmd():
+    cwd = str(os.getcwd())
+    return ["docker", "run", "--rm", "-v", cwd+":"+cwd, "-w",cwd, "-v", "/var/run/docker.sock:/var/run/docker.sock", "docker/compose:1.24.0"]

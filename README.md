@@ -25,3 +25,8 @@ git clone git@github.com:IOTechSystems/performance-summary-collection.git
 cd /path/to/performance-summary-collection
 robot -d report .
 ```
+
+
+#
+docker run --rm --entrypoint="" -v /var/run/docker.sock:/var/run/docker.sock docker/compose:1.24.0 ls
+docker run --rm -v docker-compose.yml:/code/ -v /var/run/docker.sock:/var/run/docker.sock docker/compose:1.24.0 up -d
