@@ -9,6 +9,8 @@ https://docs.google.com/spreadsheets/d/1ScN7urohtlbwL9ns-5rSxjRy5hIL3j3Jr4eyLeD0
 
 ## Install
 
+* docker
+
 * sudo apt install python3-pip
 * python3 -m pip install robotframework
 
@@ -27,6 +29,15 @@ robot -d report .
 ```
 
 
-#
-docker run --rm --entrypoint="" -v /var/run/docker.sock:/var/run/docker.sock docker/compose:1.24.0 ls
-docker run --rm -v docker-compose.yml:/code/ -v /var/run/docker.sock:/var/run/docker.sock docker/compose:1.24.0 up -d
+## Run robotframework in docker
+
+### Build image
+```
+docker build -t iotech-releases.jfrog.io/robotframework:1.0.0 .
+```
+
+### Run robotframework
+```
+docker run --rm -v $PWD:$PWD -w $PWD -v /var/run/docker.sock:/var/run/docker.sock iotech-releases.jfrog.io/robotframework:1.0.0 -d report .
+```
+
