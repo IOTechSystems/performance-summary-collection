@@ -44,6 +44,7 @@ robot -d report .
 ## Custom robotframework docker image
 ```
 docker build -t iotech-releases.jfrog.io/robotframework:1.0.0 .
+docker build -f Dockerfile.arm64 -t iotech-releases.jfrog.io/robotframework-arm64:1.0.0 .
 ```
 
 

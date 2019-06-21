@@ -1,6 +1,7 @@
 from robot.api import logger
 import subprocess
 import os
+import platform
 
 # docker run --rm -v $PWD:$PWD -w $PWD -v /var/run/docker.sock:/var/run/docker.sock docker/compose:1.24.0 up -d
 
@@ -62,4 +63,10 @@ def run_command(cmd):
 
 def docker_compose_cmd():
     cwd = str(os.getcwd())
-    return ["docker", "run", "--rm", "-v", cwd+":"+cwd, "-w",cwd, "-v", "/var/run/docker.sock:/var/run/docker.sock", "docker/compose:1.24.0"]
+    return ["docker", "run", "--rm", "-v", cwd+":"+cwd, "-w",cwd, "-v", "/var/run/docker.sock:/var/run/docker.sock", docker_compose_file()]
+
+def docker_compose_file():
+    if "aarch64" not in platform.platform(): 
+        return "docker/compose:1.24.0"
+    else:
+        return "iotech-services.jfrog.io/compose_arm64:1.25.0-rc1"
