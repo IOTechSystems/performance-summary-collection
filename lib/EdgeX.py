@@ -52,7 +52,7 @@ def run_command(cmd):
             logger.info(line,also_console=True)
 
         p.wait()
-        logger.info("exit " + p.returncode) 
+        logger.info("exit " + str(p.returncode)) 
         if (p.returncode != 0):
             msg = "Failt to execute cmd: "+ " ".join(str(x) for x in cmd)
             logger.error(msg) 
@@ -63,7 +63,19 @@ def run_command(cmd):
 
 def docker_compose_cmd():
     cwd = str(os.getcwd())
-    return ["docker", "run", "--rm", "-v", cwd+":"+cwd, "-w",cwd, "-v", "/var/run/docker.sock:/var/run/docker.sock", docker_compose_file()]
+    return ["docker", "run", "--rm", "--env-file", docker_compose_env_file(),"-v", cwd+":"+cwd, "-w",cwd, "-v", "/var/run/docker.sock:/var/run/docker.sock", docker_compose_file()]
+
+def docker_compose_env_file():
+    if platform.machine() == "aarch32": 
+        return "docker-compose.arm.env"
+    elif platform.machine() == "aarch64":
+        return "docker-compose.arm64.env"
+    elif platform.machine() == "x86_64":
+        return "docker-compose.x86_64.env"
+    else:
+        msg = "Unknow platform machine: " + platform.machine()
+        logger.error(msg) 
+        raise Exception(msg)
 
 def docker_compose_file():
     if "aarch64" not in platform.platform(): 

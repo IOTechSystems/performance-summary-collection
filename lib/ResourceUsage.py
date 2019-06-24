@@ -2,6 +2,7 @@ import traceback
 from robot.api import logger
 import docker
 import platform
+from datetime import datetime
 
 client = docker.from_env()
 
@@ -91,7 +92,6 @@ def fetch_by_service(service):
 
         execResult = container.stats(stream=False)
         cpuUsage = calculateCPUPercent(execResult)
-        # https://github.com/docker/cli/blob/master/cli/command/container/stats_helpers.go#L100
         memoryUsage = calculate_memory_usage(execResult)
 
         if not services[containerName]["binary"]:
@@ -127,22 +127,34 @@ def calculate_memory_usage(d):
     return d["memory_stats"]["usage"] - d["memory_stats"]["stats"]["cache"]
 
 
-def calculateCPUPercent(v):
+# https://github.com/docker/cli/blob/master/cli/command/container/stats_helpers.go#L100
+def calculateCPUPercent(d):
     percent = 0
     if (platform.system() == "Windows"):
-        percent = calculateCPUPercentWindows(v)
+        percent = calculateCPUPercentWindows(d)
     else:
-        percent = calculateCPUPercentUnix(v)
+        percent = calculateCPUPercentUnix(d)
     return percent
 
 def calculateCPUPercentWindows(v):
-    percent = 0
+	# Max number of 100ns intervals between the previous time read and now
+    readTime = datetime.strptime(v["read"], "%Y-%m-%dT%H:%M:%S.%f").timestamp()
+    prereadTime = datetime.strptime(v["preread"], "%Y-%m-%dT%H:%M:%S.%f").timestamp()
+    possIntervals = (readTime-prereadTime)/1000                      # Start with number of ns intervals
+    possIntervals /= 100                                              # Convert to number of 100ns intervals
+    possIntervals *= int(v["num_procs"])                          # Multiple by the number of processors
 
-    # TODO
+    # Intervals used
+    intervalsUsed = v["cpu_stats"]["cpu_usage"]["total_usage"] - v["precpu_stats"]["cpu_usage"]["total_usage"]
 
-    return percent
+	# Percentage avoiding divide-by-zero
+    if (possIntervals > 0):
+        return float(intervalsUsed) / float(possIntervals) * 100.0
+    
+    return 0.00
 
 def calculateCPUPercentUnix(v):
+    # logger.console(v)
     previousCPU = v["precpu_stats"]["cpu_usage"]["total_usage"]
     previousSystem = v["precpu_stats"]["system_cpu_usage"]
 

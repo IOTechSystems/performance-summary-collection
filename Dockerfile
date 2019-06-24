@@ -1,7 +1,7 @@
 ARG DOCKER_VERSION=18.09.5
 FROM docker:${DOCKER_VERSION} AS docker-cli
 
-FROM alpine
+FROM alpine:3.9
 
 COPY --from=docker-cli  /usr/local/bin/docker   /usr/local/bin/docker
 COPY robot-entrypoint.sh /usr/local/bin/
