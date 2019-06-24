@@ -7,11 +7,11 @@ Documentation   Get footprint and CPU, memory usage
 Library         Process
 Library         ../lib/EdgeX.py
 Library         ../lib/ResourceUsage.py
-Suite Teardown  Shutdown EdgeX
+# Suite Teardown  Shutdown EdgeX
 
 
 *** Test Cases ***
 Get footprint and CPU, memory usage
-    Given EdgeX is deployed
+    # Given EdgeX is deployed
     When fetch footprint cpu memory
     Then show the summary table

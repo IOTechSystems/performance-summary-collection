@@ -1,6 +1,7 @@
 import traceback
 from robot.api import logger
 import docker
+import platform
 
 client = docker.from_env()
 
@@ -89,7 +90,8 @@ def fetch_by_service(service):
         imageSize = image.attrs["Size"]
 
         execResult = container.stats(stream=False)
-        cpuUsage = calculate_cpu_percent(execResult)
+        cpuUsage = calculateCPUPercent(execResult)
+        # https://github.com/docker/cli/blob/master/cli/command/container/stats_helpers.go#L100
         memoryUsage = calculate_memory_usage(execResult)
 
         if not services[containerName]["binary"]:
@@ -121,19 +123,42 @@ def fetch_by_service(service):
         traceback.print_exc()
 
 
-# https://github.com/docker/cli/blob/master/cli/command/container/stats_helpers.go
-# https://github.com/TomasTomecek/sen/blob/master/sen/util.py#L160
-def calculate_cpu_percent(d):
-    cpu_count = len(d["cpu_stats"]["cpu_usage"]["percpu_usage"])
-    cpu_percent = 0.0
-    cpu_delta = float(d["cpu_stats"]["cpu_usage"]["total_usage"]) - \
-                float(d["precpu_stats"]["cpu_usage"]["total_usage"])
-    system_delta = float(d["cpu_stats"]["system_cpu_usage"]) - \
-                   float(d["precpu_stats"]["system_cpu_usage"])
-    if system_delta > 0.0:
-        cpu_percent = cpu_delta / system_delta * 100.0 * cpu_count
-    return cpu_percent
-
-
 def calculate_memory_usage(d):
     return d["memory_stats"]["usage"] - d["memory_stats"]["stats"]["cache"]
+
+
+def calculateCPUPercent(v):
+    percent = 0
+    if (platform.system() == "Windows"):
+        percent = calculateCPUPercentWindows(v)
+    else:
+        percent = calculateCPUPercentUnix(v)
+    return percent
+
+def calculateCPUPercentWindows(v):
+    percent = 0
+
+    # TODO
+
+    return percent
+
+def calculateCPUPercentUnix(v):
+    previousCPU = v["precpu_stats"]["cpu_usage"]["total_usage"]
+    previousSystem = v["precpu_stats"]["system_cpu_usage"]
+
+    cpuPercent = 0.0
+	# calculate the change for the cpu usage of the container in between readings
+    cpuDelta = float(v["cpu_stats"]["cpu_usage"]["total_usage"]) - float(previousCPU)
+	# calculate the change for the entire system between readings
+    systemDelta = float(v["cpu_stats"]["system_cpu_usage"]) - float(previousSystem)
+    onlineCPUs  = float(v["cpu_stats"]["online_cpus"])
+
+
+    if (onlineCPUs == 0.0) :
+        onlineCPUs = float(len(v["cpu_stats"]["cpu_usage"]["percpu_usage"]))
+	
+    if ((systemDelta > 0.0) and (cpuDelta > 0.0)): 
+        cpuPercent = (cpuDelta / systemDelta) * onlineCPUs * 100.0
+	
+    return cpuPercent
+

@@ -52,7 +52,7 @@ def run_command(cmd):
             logger.info(line,also_console=True)
 
         p.wait()
-        logger.info(p.returncode) 
+        logger.info("exit " + p.returncode) 
         if (p.returncode != 0):
             msg = "Failt to execute cmd: "+ " ".join(str(x) for x in cmd)
             logger.error(msg) 
