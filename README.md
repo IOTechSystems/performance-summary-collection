@@ -19,6 +19,11 @@ https://docs.google.com/spreadsheets/d/1ScN7urohtlbwL9ns-5rSxjRy5hIL3j3Jr4eyLeD0
     $ docker run --rm -v $PWD:$PWD -w $PWD -v /var/run/docker.sock:/var/run/docker.sock iotech-releases.jfrog.io/robotframework:1.0.0 -d report .
     ```
 
+    in arm64
+    ```
+    $ cd /path/to/performance-summary-collection
+    $ docker run --rm -v $PWD:$PWD -w $PWD -v /var/run/docker.sock:/var/run/docker.sock iotech-releases.jfrog.io/robotframework-arm64:1.0.0 -d report .
+    ```
 
 ## Develop
 

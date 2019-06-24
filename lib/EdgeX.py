@@ -66,6 +66,7 @@ def docker_compose_cmd():
     return ["docker", "run", "--rm", "--env-file", docker_compose_env_file(),"-v", cwd+":"+cwd, "-w",cwd, "-v", "/var/run/docker.sock:/var/run/docker.sock", docker_compose_file()]
 
 def docker_compose_env_file():
+    logger.info("platform.machine() is "+ platform.machine(),also_console=True)
     if platform.machine() == "aarch32": 
         return "docker-compose.arm.env"
     elif platform.machine() == "aarch64":

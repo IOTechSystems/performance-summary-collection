@@ -3,6 +3,7 @@ from robot.api import logger
 import docker
 import platform
 from datetime import datetime
+import sys
 
 client = docker.from_env()
 
@@ -116,11 +117,15 @@ def fetch_by_service(service):
         services[containerName]["binaryFootprint"] = 0
         services[containerName]["cpuUsage"] = 0
         services[containerName]["memoryUsage"] = 0
-        logger.console(containerName + " container not found")
-        logger.console(error)
+        logger.error(containerName + " container not found")
+        logger.error(error)
     except:
-        logger.console(containerName + " fail to fetch resource usage")
-        traceback.print_exc()
+        services[containerName]["imageFootprint"] = 0
+        services[containerName]["binaryFootprint"] = 0
+        services[containerName]["cpuUsage"] = 0
+        services[containerName]["memoryUsage"] = 0
+        logger.error(containerName + " fail to fetch resource usage")
+        logger.error(traceback.format_exc())
 
 
 def calculate_memory_usage(d):
@@ -137,7 +142,7 @@ def calculateCPUPercent(d):
     return percent
 
 def calculateCPUPercentWindows(v):
-	# Max number of 100ns intervals between the previous time read and now
+    # Max number of 100ns intervals between the previous time read and now
     readTime = datetime.strptime(v["read"], "%Y-%m-%dT%H:%M:%S.%f").timestamp()
     prereadTime = datetime.strptime(v["preread"], "%Y-%m-%dT%H:%M:%S.%f").timestamp()
     possIntervals = (readTime-prereadTime)/1000                      # Start with number of ns intervals
@@ -147,7 +152,7 @@ def calculateCPUPercentWindows(v):
     # Intervals used
     intervalsUsed = v["cpu_stats"]["cpu_usage"]["total_usage"] - v["precpu_stats"]["cpu_usage"]["total_usage"]
 
-	# Percentage avoiding divide-by-zero
+    # Percentage avoiding divide-by-zero
     if (possIntervals > 0):
         return float(intervalsUsed) / float(possIntervals) * 100.0
     
@@ -159,18 +164,18 @@ def calculateCPUPercentUnix(v):
     previousSystem = v["precpu_stats"]["system_cpu_usage"]
 
     cpuPercent = 0.0
-	# calculate the change for the cpu usage of the container in between readings
+    # calculate the change for the cpu usage of the container in between readings
     cpuDelta = float(v["cpu_stats"]["cpu_usage"]["total_usage"]) - float(previousCPU)
-	# calculate the change for the entire system between readings
+    # calculate the change for the entire system between readings
     systemDelta = float(v["cpu_stats"]["system_cpu_usage"]) - float(previousSystem)
     onlineCPUs  = float(v["cpu_stats"]["online_cpus"])
 
 
     if (onlineCPUs == 0.0) :
         onlineCPUs = float(len(v["cpu_stats"]["cpu_usage"]["percpu_usage"]))
-	
+
     if ((systemDelta > 0.0) and (cpuDelta > 0.0)): 
         cpuPercent = (cpuDelta / systemDelta) * onlineCPUs * 100.0
-	
+
     return cpuPercent
 
