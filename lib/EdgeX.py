@@ -3,7 +3,8 @@ import subprocess
 import os
 import platform
 
-# docker run --rm -v $PWD:$PWD -w $PWD -v /var/run/docker.sock:/var/run/docker.sock docker/compose:1.24.0 up -d
+
+# docker run --rm --env-file docker-compose.x86_64.env -v $PWD:$PWD -w $PWD -v /var/run/docker.sock:/var/run/docker.sock docker/compose:1.24.0 up -d
 
 class EdgeX(object):
     

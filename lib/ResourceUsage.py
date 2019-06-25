@@ -129,7 +129,15 @@ def fetch_by_service(service):
 
 
 def calculate_memory_usage(d):
-    return d["memory_stats"]["usage"] - d["memory_stats"]["stats"]["cache"]
+    memory_usage = 0
+    try:
+        memory_usage = d["memory_stats"]["usage"] - d["memory_stats"]["stats"]["cache"]
+    except:
+        logger.error("fail to calculate memory usage")
+        logger.error(traceback.format_exc())
+        return memory_usage
+
+    return memory_usage
 
 
 # https://github.com/docker/cli/blob/master/cli/command/container/stats_helpers.go#L100

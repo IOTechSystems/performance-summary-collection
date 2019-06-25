@@ -190,6 +190,7 @@ services:
        - consul-data:/consul/data
      depends_on:
        - logging
+     restart: always
 
   export-client:
      image: ${exportClient}
