@@ -3,7 +3,8 @@ import traceback
 import time
 from datetime import datetime
 import pytz
-
+import os
+import sys
 import docker
 import re
 
@@ -80,13 +81,13 @@ class ServiceStartupTime(object):
 
     def fetch_services_start_up_time_and_total_time(self):
         # wait for service start
-        time.sleep(25)
+        time.sleep(int(os.environ["waitTime"]))
         global result1
         result1 = get_services_start_up_time_and_total_time(self.start_time, services)
 
     def fetch_services_start_up_time_and_total_time_without_creating_containers(self):
         # wait for service start
-        time.sleep(25)
+        time.sleep(int(os.environ["waitTime"]))
         global result2
         result2 = get_services_start_up_time_and_total_time(self.start_time, services)
 
@@ -94,14 +95,14 @@ class ServiceStartupTime(object):
 
     def fetch_services_start_up_time_and_total_time_exclude_ruleengine(self):
         # wait for service start
-        time.sleep(10)
+        time.sleep(int(os.environ["waitTime"]))
         global result1
         result1 = get_services_start_up_time_and_total_time(self.start_time, services_exclude_ruleengine)
 
     # Exclude ruleengine
     def fetch_services_start_up_time_and_total_time_without_creating_containers_exclude_ruleengine(self):
         # wait for service start
-        time.sleep(10)
+        time.sleep(int(os.environ["waitTime"]))
         global result2
         result2 = get_services_start_up_time_and_total_time(self.start_time, services_exclude_ruleengine)
 
@@ -165,14 +166,14 @@ class ServiceStartupTime(object):
         startedTime = fetch_started_time_by_service(service)
 
         startupTime = 0
-        if (startedTime == 0):
+        if startedTime == 0:
             logger.console('StartupTime: ' + str(startupTime))
         else:
             startupTime = startedTime - self.start_time
             logger.console('StartupTime: ' + str(startupTime))
 
 
-def findTotalStartupTime(result):
+def find_total_startup_time(result):
     largestTime = 0
     for k in result:
         if largestTime < result[k]["startupTime"]:
@@ -184,61 +185,85 @@ def findTotalStartupTime(result):
 def get_services_start_up_time_and_total_time(start_time, containers):
     result = {}
     for k in containers:
-        res = fetch_started_time_by_service(k)
-
-        result[k] = {}
-        result[k]["binaryStartupTime"] = res["binaryStartupTime"]
-
-        if not res["startupDateTime"]:
+        if k == "edgex-core-consul" or k == "edgex-mongo":
+            logger.info("skip consul and mongo")
+            result[k] = {}
+            result[k]["binaryStartupTime"] = 0
             result[k]["startupTime"] = 0
-        else:
-            startupDateTime = res["startupDateTime"]
-            datePattern = "%Y-%m-%dT%H:%M:%S.%f"
-            if "T" not in startupDateTime:
-                datePattern = "%Y-%m-%d %H:%M:%S.%f"
-            dt = datetime.strptime(startupDateTime, datePattern).replace(tzinfo=pytz.UTC)
+            continue
 
-            result[k]["startupTime"] = dt.timestamp() - start_time
+        get_service_start_up_time_and_total_time(start_time, k, result)
 
-    totalStartupTime = findTotalStartupTime(result)
+    total_startup_time = find_total_startup_time(result)
     result["Total startup time"] = {}
     result["Total startup time"]["binaryStartupTime"] = ""
-    result["Total startup time"]["startupTime"] = totalStartupTime
+    result["Total startup time"]["startupTime"] = total_startup_time
 
     return result
+
+
+def get_service_start_up_time_and_total_time(start_time, containerName, result):
+    res = {}
+    retrytimes = int(os.environ["retryFetchStartupTimes"])
+    for i in range(retrytimes):
+        try:
+            res = fetch_started_time_by_service(containerName)
+            break
+        except docker.errors.NotFound as error:
+            logger.error(error)
+            res = {"startupDateTime": "", "binaryStartupTime": ""}
+            break
+        except Exception as e:
+            logger.warn(e.args)
+            if i == (retrytimes - 1):
+                logger.warn("fail to fetch startup time from " + containerName)
+                res = {"startupDateTime": "", "binaryStartupTime": ""}
+                break
+            # wait for retry
+            logger.warn("Retry to fetch startup time from " + containerName)
+            time.sleep(int(os.environ["waitTime"]))
+
+    result[containerName] = {}
+    result[containerName]["binaryStartupTime"] = res["binaryStartupTime"]
+
+    if not res["startupDateTime"]:
+        result[containerName]["startupTime"] = 0
+    else:
+        startupDateTime = res["startupDateTime"]
+        datePattern = "%Y-%m-%dT%H:%M:%S.%f"
+        if "T" not in startupDateTime:
+            datePattern = "%Y-%m-%d %H:%M:%S.%f"
+        dt = datetime.strptime(startupDateTime, datePattern).replace(tzinfo=pytz.UTC)
+
+        result[containerName]["startupTime"] = dt.timestamp() - start_time
 
 
 def fetch_started_time_by_service(service):
     response = {"startupDateTime": "", "binaryStartupTime": ""}
     containerName = service
     logger.info("Fetch the service: " + containerName, also_console=True)
-    try:
-        container = client.containers.get(containerName)
-        msg = container.logs(until=int(time.time()))
-        # level=INFO ts=2019-06-18T07:17:18.5245679Z app=edgex-core-data source=main.go:70 msg="Service started in: 120.62ms"
-        x = re.findall(services[containerName]["msgRegex"], str(msg))
-        if (len(x) == 0):
-            return response
-        startedMsg = x[len(x) - 1]
 
-        logger.info("[Service started msg] " + startedMsg, also_console=True)
-        # 2019-06-18T07:17:18.524567
-        x = re.findall(services[containerName]["startupDatetimeRegex"], startedMsg)
-        if (len(x) == 0):
-            return response
-        startupDateTime = x[len(x) - 1]
-        response["startupDateTime"] = startupDateTime
+    container = client.containers.get(containerName)
+    msg = container.logs(until=int(time.time()))
+    # level=INFO ts=2019-06-18T07:17:18.5245679Z app=edgex-core-data source=main.go:70 msg="Service started in: 120.62ms"
+    x = re.findall(services[containerName]["msgRegex"], str(msg))
+    if len(x) == 0:
+        raise Exception("startup msg not found")
+    startedMsg = x[len(x) - 1]
 
-        x = re.findall(services[containerName]["binaryStartupTimeRegex"], startedMsg)
-        binaryStartupTime = x[len(x) - 1]
-        response["binaryStartupTime"] = binaryStartupTime
+    logger.info("[Service started msg] " + startedMsg, also_console=True)
+    # 2019-06-18T07:17:18.524567
+    x = re.findall(services[containerName]["startupDatetimeRegex"], startedMsg)
+    if len(x) == 0:
+        raise Exception("startup msg not found")
+    startupDateTime = x[len(x) - 1]
+    response["startupDateTime"] = startupDateTime
 
-        return response
-    except docker.errors.NotFound as error:
-        logger.console(error)
-    except:
-        logger.console(containerName + " fail to fetch started time by_service")
-        traceback.print_exc()
+    x = re.findall(services[containerName]["binaryStartupTimeRegex"], startedMsg)
+    binaryStartupTime = x[len(x) - 1]
+    response["binaryStartupTime"] = binaryStartupTime
+
+    return response
 
 
 def show_the_summary_table_in_html(result):
