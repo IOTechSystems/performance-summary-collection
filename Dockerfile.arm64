@@ -19,6 +19,7 @@ RUN echo "**** install Python ****" && \
     echo "**** install robotframework and dependencies ****" && \
     python3 -m pip install robotframework && \
     pip3 install docker  &&  \
-    pip3 install pytz  
+    pip3 install pytz    &&  \
+    pip3 install -U python-dotenv
 
 ENTRYPOINT ["sh", "/usr/local/bin/robot-entrypoint.sh"]
