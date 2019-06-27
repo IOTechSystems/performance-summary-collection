@@ -1,6 +1,7 @@
 from robot.api import logger
 import subprocess
 import os
+import time
 import platform
 import sys
 from dotenv import load_dotenv
@@ -24,6 +25,8 @@ class EdgeX(object):
         cmd = docker_compose_cmd()
         cmd.extend(['up','-d'])
         run_command(cmd)
+        # wait for service start
+        time.sleep(int(os.environ["waitTime"]))
 
     def edgex_is_deployed_exclude_ruleengine(self):
         cmd = docker_compose_cmd()

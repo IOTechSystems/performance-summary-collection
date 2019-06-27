@@ -1,5 +1,4 @@
 from robot.api import logger
-import traceback
 import time
 from datetime import datetime
 import pytz
@@ -80,31 +79,23 @@ class ServiceStartupTime(object):
         logger.info("\n --- Start time %s seconds ---" % self.start_time, also_console=True)
 
     def fetch_services_start_up_time_and_total_time(self):
-        # wait for service start
-        time.sleep(int(os.environ["waitTime"]))
         global result1
         result1 = get_services_start_up_time_and_total_time(self.start_time, services)
 
     def fetch_services_start_up_time_and_total_time_without_creating_containers(self):
-        # wait for service start
-        time.sleep(int(os.environ["waitTime"]))
         global result2
         result2 = get_services_start_up_time_and_total_time(self.start_time, services)
 
         # Exclude ruleengine
 
     def fetch_services_start_up_time_and_total_time_exclude_ruleengine(self):
-        # wait for service start
-        time.sleep(int(os.environ["waitTime"]))
-        global result1
-        result1 = get_services_start_up_time_and_total_time(self.start_time, services_exclude_ruleengine)
+        global result3
+        result3 = get_services_start_up_time_and_total_time(self.start_time, services_exclude_ruleengine)
 
     # Exclude ruleengine
     def fetch_services_start_up_time_and_total_time_without_creating_containers_exclude_ruleengine(self):
-        # wait for service start
-        time.sleep(int(os.environ["waitTime"]))
-        global result2
-        result2 = get_services_start_up_time_and_total_time(self.start_time, services_exclude_ruleengine)
+        global result4
+        result4 = get_services_start_up_time_and_total_time(self.start_time, services_exclude_ruleengine)
 
     def show_the_summary_table(self):
         show_the_summary_table_in_html(result1)
@@ -113,53 +104,10 @@ class ServiceStartupTime(object):
         show_the_summary_table_in_html(result2)
 
     def show_the_comparison_table(self):
-        html = """ 
-        <table style="border: 1px solid black;white-space: initial;"> 
-            <tr style="border: 1px solid black;">
-                <th style="border: 1px solid black;">
-                    Micro service			 	 
-                </th>
-                <th style="border: 1px solid black;">
-                    Startup time(Binary)
-                </th>
-                <th style="border: 1px solid black;">
-                    Startup time(Container+Binary)
-                </th>
-                <th style="border: 1px solid black;">
-                    Startup time(Binary) <br/> without recreate container 
-                </th>
-                <th style="border: 1px solid black;">
-                    Startup time(Container+Binary)<br/> without recreate container
-                </th>
-            </tr>
-        """
+        show_the_comparison_table_in_html(result1, result2)
 
-        for k in result1:
-            html = html + """ 
-            <tr style="border: 1px solid black;">
-                <td style="border: 1px solid black;">
-                    {}			 	 
-                </td>
-                <td style="border: 1px solid black;">
-                    {}
-                </td>
-                <td style="border: 1px solid black;">
-                    {} seconds
-                </td>
-                <td style="border: 1px solid black;">
-                    {}
-                </td>
-                <td style="border: 1px solid black;">
-                    {} seconds
-                </td>
-            </tr>
-        """.format(
-                k, result1[k]["binaryStartupTime"], str(result1[k]["startupTime"]), result2[k]["binaryStartupTime"],
-                str(result2[k]["startupTime"]),
-            )
-
-        html = html + "</table>"
-        logger.info(html, html=True)
+    def show_the_comparison_table_for_exclude_ruleengine_case(self):
+        show_the_comparison_table_in_html(result3, result4)
 
     def fetch_statup_time_from_service(self, service):
         time.sleep(5)
@@ -295,6 +243,56 @@ def show_the_summary_table_in_html(result):
         </tr>
     """.format(
             k, result[k]["binaryStartupTime"], str(result[k]["startupTime"]),
+        )
+
+    html = html + "</table>"
+    logger.info(html, html=True)
+
+
+def show_the_comparison_table_in_html(case1, case2):
+    html = """ 
+    <table style="border: 1px solid black;white-space: initial;"> 
+        <tr style="border: 1px solid black;">
+            <th style="border: 1px solid black;">
+                Micro service			 	 
+            </th>
+            <th style="border: 1px solid black;">
+                Startup time(Binary)
+            </th>
+            <th style="border: 1px solid black;">
+                Startup time(Container+Binary)
+            </th>
+            <th style="border: 1px solid black;">
+                Startup time(Binary) <br/> without recreate container 
+            </th>
+            <th style="border: 1px solid black;">
+                Startup time(Container+Binary)<br/> without recreate container
+            </th>
+        </tr>
+    """
+
+    for k in case1:
+        html = html + """ 
+        <tr style="border: 1px solid black;">
+            <td style="border: 1px solid black;">
+                {}			 	 
+            </td>
+            <td style="border: 1px solid black;">
+                {}
+            </td>
+            <td style="border: 1px solid black;">
+                {} seconds
+            </td>
+            <td style="border: 1px solid black;">
+                {}
+            </td>
+            <td style="border: 1px solid black;">
+                {} seconds
+            </td>
+        </tr>
+    """.format(
+            k, case1[k]["binaryStartupTime"], str(case1[k]["startupTime"]), case2[k]["binaryStartupTime"],
+            str(case2[k]["startupTime"]),
         )
 
     html = html + "</table>"

@@ -7,6 +7,7 @@ import sys
 
 client = docker.from_env()
 
+global services
 services = {
     "edgex-core-consul": {"binary": ""},
     "edgex-mongo": {"binary": ""},
@@ -34,53 +35,7 @@ class ResourceUsage(object):
             fetch_by_service(k)
 
     def show_the_summary_table(self):
-        html = """ 
-        <table style="border: 1px solid black;white-space: initial;"> 
-            <tr style="border: 1px solid black;">
-                <th style="border: 1px solid black;">
-                    Micro service			 	 
-                </th>
-                <th style="border: 1px solid black;">
-                    Image Footprint
-                </th>
-                <th style="border: 1px solid black;">
-                    Executable
-                </th>
-                <th style="border: 1px solid black;">
-                    Memory used on start up
-                </th>
-                <th style="border: 1px solid black;">
-                    CPU Usage on start up
-                </th>
-            </tr>
-        """
-
-        for k in services:
-            html = html + """ 
-            <tr style="border: 1px solid black;">
-                <td style="border: 1px solid black;">
-                    {}			 	 
-                </td>
-                <td style="border: 1px solid black;">
-                    {} MB
-                </td>
-                <td style="border: 1px solid black;">
-                    {} MB
-                </td>
-                <td style="border: 1px solid black;">
-                    {} MB
-                </td>
-                <td style="border: 1px solid black;">
-                    {} %
-                </td>
-            </tr>
-        """.format(
-                k, services[k]["imageFootprint"], services[k]["binaryFootprint"], services[k]["memoryUsage"],
-                services[k]["cpuUsage"]
-            )
-
-        html = html + "</table>"
-        logger.info(html, html=True)
+        show_the_summary_table_in_html()
 
 
 def fetch_by_service(service):
@@ -187,3 +142,52 @@ def calculateCPUPercentUnix(v):
 
     return cpuPercent
 
+
+def show_the_summary_table_in_html():
+    html = """ 
+    <table style="border: 1px solid black;white-space: initial;"> 
+        <tr style="border: 1px solid black;">
+            <th style="border: 1px solid black;">
+                Micro service			 	 
+            </th>
+            <th style="border: 1px solid black;">
+                Image Footprint
+            </th>
+            <th style="border: 1px solid black;">
+                Executable
+            </th>
+            <th style="border: 1px solid black;">
+                Memory used on start up
+            </th>
+            <th style="border: 1px solid black;">
+                CPU Usage on start up
+            </th>
+        </tr>
+    """
+
+    for k in services:
+        html = html + """ 
+        <tr style="border: 1px solid black;">
+            <td style="border: 1px solid black;">
+                {}			 	 
+            </td>
+            <td style="border: 1px solid black;">
+                {} MB
+            </td>
+            <td style="border: 1px solid black;">
+                {} MB
+            </td>
+            <td style="border: 1px solid black;">
+                {} MB
+            </td>
+            <td style="border: 1px solid black;">
+                {} %
+            </td>
+        </tr>
+    """.format(
+            k, services[k]["imageFootprint"], services[k]["binaryFootprint"], services[k]["memoryUsage"],
+            services[k]["cpuUsage"]
+        )
+
+    html = html + "</table>"
+    logger.info(html, html=True)
