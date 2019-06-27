@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation   Measure the startup time for starting services one by one
-...             Get service start up time with creating containers
-...             Get service start up time without creating containers
+...             Get service startup time with creating containers
+...             Get service startup time without creating containers
 #Library         ../lib/EdgeX.py
 #Library         ../lib/ServiceStartupTime.py
 

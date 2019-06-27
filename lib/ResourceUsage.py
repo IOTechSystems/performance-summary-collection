@@ -157,10 +157,10 @@ def show_the_summary_table_in_html():
                 Executable
             </th>
             <th style="border: 1px solid black;">
-                Memory used on start up
+                Memory used at startup
             </th>
             <th style="border: 1px solid black;">
-                CPU Usage on start up
+                CPU Usage at startup
             </th>
         </tr>
     """
