@@ -203,7 +203,7 @@ def get_services_start_up_time_and_total_time(start_time, containers):
 
 
 def get_service_start_up_time_and_total_time(start_time, containerName, result):
-    res = {}
+    res = {"startupDateTime": "", "binaryStartupTime": ""}
     retrytimes = int(os.environ["retryFetchStartupTimes"])
     for i in range(retrytimes):
         try:
@@ -211,13 +211,11 @@ def get_service_start_up_time_and_total_time(start_time, containerName, result):
             break
         except docker.errors.NotFound as error:
             logger.error(error)
-            res = {"startupDateTime": "", "binaryStartupTime": ""}
             break
         except Exception as e:
             logger.warn(e.args)
             if i == (retrytimes - 1):
                 logger.warn("fail to fetch startup time from " + containerName)
-                res = {"startupDateTime": "", "binaryStartupTime": ""}
                 break
             # wait for retry
             logger.warn("Retry to fetch startup time from " + containerName)

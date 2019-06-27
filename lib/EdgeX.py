@@ -73,8 +73,10 @@ def run_command(cmd):
 
 def docker_compose_cmd():
     cwd = str(os.getcwd())
-    return ["docker", "run", "--rm", "--env-file", get_env_file(), "-v", cwd + ":" + cwd, "-w", cwd, "-v",
-            "/var/run/docker.sock:/var/run/docker.sock", docker_compose_file()]
+    return ["docker", "run", "--rm",
+            "--env-file", get_env_file(), "-e", "PWD=" + cwd,
+            "-v", cwd + ":" + cwd, "-w", cwd, "-v",
+            "/var/run/docker.sock:/var/run/docker.sock", docker_compose_image()]
 
 
 def get_env_file():
@@ -89,7 +91,8 @@ def get_env_file():
         logger.error(msg)
         raise Exception(msg)
 
-def docker_compose_file():
+
+def docker_compose_image():
     try:
         return str(os.environ["compose"])
     except KeyError:

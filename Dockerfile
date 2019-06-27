@@ -9,6 +9,9 @@ COPY robot-entrypoint.sh /usr/local/bin/
 RUN echo "**** install Python ****" && \
     apk add --no-cache python3 && \
     if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi && \
+    apk add --no-cache tzdata      &&  \
+    cp /usr/share/zoneinfo/UTC /etc/localtime  &&  \
+    apk del tzdata  &&  \
     \
     echo "**** install pip ****" && \
     python3 -m ensurepip && \
@@ -19,7 +22,6 @@ RUN echo "**** install Python ****" && \
     echo "**** install robotframework and dependencies ****" && \
     python3 -m pip install robotframework && \
     pip3 install docker  &&  \
-    pip3 install pytz    &&  \
-    pip3 install -U python-dotenv
-
+    pip3 install -U python-dotenv  &&  \
+    pip3 install -U RESTinstance
 ENTRYPOINT ["sh", "/usr/local/bin/robot-entrypoint.sh"]
