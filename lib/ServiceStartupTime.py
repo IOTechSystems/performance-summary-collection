@@ -110,7 +110,6 @@ class ServiceStartupTime(object):
         show_the_comparison_table_in_html(result3, result4)
 
     def fetch_statup_time_from_service(self, service):
-        time.sleep(5)
         startedTime = fetch_started_time_by_service(service)
 
         startupTime = 0

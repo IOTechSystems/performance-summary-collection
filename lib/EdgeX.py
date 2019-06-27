@@ -5,10 +5,32 @@ import time
 import platform
 import sys
 from dotenv import load_dotenv
+import http.client
 
+services = {
+    "edgex-core-data": {"port": 48080, "url": "/api/v1/ping"},
+    "edgex-core-metadata": {"port": 48081, "url": "/api/v1/ping"},
+    "edgex-core-command": {"port": 48082, "url": "/api/v1/ping"},
+    "edgex-support-logging": {"port": 48061, "url": "/api/v1/ping"},
+    "edgex-support-notifications": {"port": 48060, "url": "/api/v1/ping"},
+    "edgex-support-scheduler": {"port": 48085, "url": "/api/v1/ping"},
+    "edgex-export-client": {"port": 48071, "url": "/api/v1/ping"},
+    "edgex-export-distro": {"port": 48070, "url": "/api/v1/ping"},
+    "edgex-support-rulesengine": {"port": 48075, "url": "/api/v1/ping"},
+    "edgex-device-virtual": {"port": 49990, "url": "/api/v1/ping"},
+}
 
-# docker run --rm --env-file x86_64.env -v $PWD:$PWD -w $PWD -v /var/run/docker.sock:/var/run/docker.sock docker/compose:1.24.0 up -d
-
+services_exclude_ruleengine = {
+    "edgex-core-data": {"port": 48080, "url": "/api/v1/ping"},
+    "edgex-core-metadata": {"port": 48081, "url": "/api/v1/ping"},
+    "edgex-core-command": {"port": 48082, "url": "/api/v1/ping"},
+    "edgex-support-logging": {"port": 48061, "url": "/api/v1/ping"},
+    "edgex-support-notifications": {"port": 48060, "url": "/api/v1/ping"},
+    "edgex-support-scheduler": {"port": 48085, "url": "/api/v1/ping"},
+    "edgex-export-client": {"port": 48071, "url": "/api/v1/ping"},
+    "edgex-export-distro": {"port": 48070, "url": "/api/v1/ping"},
+    "edgex-device-virtual": {"port": 49990, "url": "/api/v1/ping"},
+}
 
 class EdgeX(object):
 
@@ -25,13 +47,15 @@ class EdgeX(object):
         cmd = docker_compose_cmd()
         cmd.extend(['up','-d'])
         run_command(cmd)
-        # wait for service start
-        time.sleep(int(os.environ["waitTime"]))
+
+        check_services_starup()
 
     def edgex_is_deployed_exclude_ruleengine(self):
         cmd = docker_compose_cmd()
         cmd.extend(['-f', 'docker-compose-exclude-ruleengine.yml', 'up', '-d'])
         run_command(cmd)
+
+        check_services_starup_exclude_ruleengine()
 
     def shutdown_edgex(self):
         cmd = docker_compose_cmd()
@@ -101,3 +125,38 @@ def docker_compose_image():
     except KeyError:
         logger.error("Please set the environment variable: compose")
         sys.exit(1)
+
+
+def check_services_starup():
+    for s in services:
+        logger.info("Check service " + s + " is startup...", also_console=True)
+        ping(services[s])
+
+
+def check_services_starup_exclude_ruleengine():
+    for s in services_exclude_ruleengine:
+        logger.info("Check service " + s + " is startup...", also_console=True)
+        if not ping(services_exclude_ruleengine[s]):
+            logger.info("Service " + s + " is unable to ping.", also_console=True)
+
+
+def ping(d):
+    retrytimes = int(os.environ["retryFetchStartupTimes"])
+    waittime = int(os.environ["waitTime"])
+    for i in range(retrytimes):
+        logger.info("Ping localhost " + str(d["port"]) + d["url"] + " ... ", also_console=True)
+        conn = http.client.HTTPConnection(host="localhost", port=d["port"])
+        conn.request(method="GET", url=d["url"])
+        try:
+            r1 = conn.getresponse()
+        except:
+            time.sleep(waittime)
+            continue
+        logger.info(r1.status, also_console=True)
+        if int(r1.status) == 200:
+            logger.info("Service is startup.", also_console=True)
+            return True
+        else:
+            time.sleep(waittime)
+            continue
+    return False
