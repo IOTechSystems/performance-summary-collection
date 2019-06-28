@@ -6,6 +6,7 @@ result = {}
 class PingResponse(object):
 
     def record_response(self, service, res):
+        logger.console(res)
         result[service] = res
 
     def show_the_summary_table(self):

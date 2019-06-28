@@ -3,7 +3,7 @@ Documentation   Measure the startup time for starting all services at once
 ...             Get service start up time ,total time with creating containers
 ...             Get service start up time ,total time without creating containers
 Library         ../lib/EdgeX.py
-Library         ../lib/ServiceStartupTime.py
+Library         ../lib/AllServicesStartupAtOnce.py
 Suite Teardown  Shutdown EdgeX
 
 *** Test Cases ***

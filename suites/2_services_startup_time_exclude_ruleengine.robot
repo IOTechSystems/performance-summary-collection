@@ -4,7 +4,7 @@ Documentation   Measure the startup time for starting all services(exclude rulee
 ...             Get service start up time ,total time without creating containers
 Library         Process
 Library         ../lib/EdgeX.py
-Library         ../lib/ServiceStartupTime.py
+Library         ../lib/AllServicesStartupAtOnce.py
 Suite Teardown  Shutdown EdgeX
 
 *** Test Cases ***

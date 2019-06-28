@@ -1,6 +1,8 @@
 import ResourceUsage
 import PingResponse
-import ServiceStartupTime
+import AllServicesStartupAtOnce
+import AllServicesStartupOneByOne
+import StartupTimeHandler
 from robot.api import logger
 
 
@@ -11,9 +13,15 @@ class PerformanceSummary(object):
         ResourceUsage.show_the_summary_table_in_html()
 
         logger.info("Startup time:")
-        ServiceStartupTime.show_the_comparison_table_in_html(ServiceStartupTime.result1, ServiceStartupTime.result2)
+        StartupTimeHandler.show_the_comparison_table_in_html(AllServicesStartupAtOnce.all_up_time,
+                                                             AllServicesStartupAtOnce.all_up_time_without_recreate)
         logger.info("Startup time(exclude ruleengine):")
-        ServiceStartupTime.show_the_comparison_table_in_html(ServiceStartupTime.result3, ServiceStartupTime.result4)
+        StartupTimeHandler.show_the_comparison_table_in_html(AllServicesStartupAtOnce.all_up_time_exclude_ruleengine,
+                                                             AllServicesStartupAtOnce.all_up_time_exclude_ruleengine_without_recreate)
+
+        logger.info("Startup time(deploy one by one):")
+        StartupTimeHandler.show_the_comparison_table_in_html(AllServicesStartupOneByOne.up_time,
+                                                             AllServicesStartupOneByOne.up_time_without_recreate)
 
         logger.info("Ping API latency:")
         PingResponse.show_the_summary_table_in_html()
