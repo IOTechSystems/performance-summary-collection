@@ -53,6 +53,9 @@ robot -d report .
 ```
 docker run --rm --env-file x86_64.env -v $PWD:$PWD -w $PWD -v /var/run/docker.sock:/var/run/docker.sock   \
     docker/compose:1.24.0 up -d
+    
+docker run --rm --env-file x86_64.env -v $PWD:$PWD -w $PWD -v /var/run/docker.sock:/var/run/docker.sock   \
+    iotech-services.jfrog.io/compose_arm64:1.25.0-rc1 up -d
 ```
 
 
@@ -62,5 +65,6 @@ docker build -t iotech-releases.jfrog.io/robotframework:1.0.0 .
 docker build -f Dockerfile.arm64 -t iotech-releases.jfrog.io/robotframework-arm64:1.0.0 .
 ```
 
+6647808
 
 

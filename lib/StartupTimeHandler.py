@@ -56,11 +56,23 @@ def fetch_service_start_up_time_by_container_name(d, start_time, result):
     res = {"startupDateTime": "", "binaryStartupTime": ""}
     retrytimes = int(os.environ["retryFetchStartupTimes"])
     container_name = d["containerName"]
+
+    result[container_name] = {}
+
     for i in range(retrytimes):
         try:
             container = client.containers.get(container_name)
             msg = container.logs(until=int(time.time()))
             res = parse_started_time_by_service(msg, d)
+
+            startup_datetime_timestamp = convert_startup_datetime_to_timestamp(res["startupDateTime"])
+            startup_time = startup_datetime_timestamp - start_time
+
+            if startup_time < 0:
+                logger.warn(msg)
+                raise Exception("invalid startup time " + str(startup_time))
+
+            result[container_name]["startupTime"] = startup_time
             break
         except docker.errors.NotFound as error:
             logger.error(error)
@@ -74,42 +86,38 @@ def fetch_service_start_up_time_by_container_name(d, start_time, result):
             logger.warn("Retry to fetch startup time from " + container_name)
             time.sleep(int(os.environ["waitTime"]))
 
-    result[container_name] = {}
     result[container_name]["binaryStartupTime"] = res["binaryStartupTime"]
 
-    if not res["startupDateTime"]:
-        result[container_name]["startupTime"] = 0
-    else:
-        startupDateTime = res["startupDateTime"]
-        datePattern = "%Y-%m-%dT%H:%M:%S.%f"
-        if "T" not in startupDateTime:
-            datePattern = "%Y-%m-%d %H:%M:%S.%f"
-        dt = datetime.strptime(startupDateTime, datePattern).replace(tzinfo=pytz.UTC)
 
-        result[container_name]["startupTime"] = dt.timestamp() - start_time
+def convert_startup_datetime_to_timestamp(startup_datetime_str):
+    datetime_pattern = "%Y-%m-%dT%H:%M:%S.%f"
+    if "T" not in startup_datetime_str:
+        datetime_pattern = "%Y-%m-%d %H:%M:%S.%f"
+
+    dt = datetime.strptime(startup_datetime_str, datetime_pattern).replace(tzinfo=pytz.UTC)
+    return dt.timestamp()
 
 
 def parse_started_time_by_service(msg, d):
     logger.info("Parse log from the service: " + d["containerName"], also_console=True)
-
     response = {"startupDateTime": "", "binaryStartupTime": ""}
+
     # level=INFO ts=2019-06-18T07:17:18.5245679Z app=edgex-core-data source=main.go:70 msg="Service started in: 120.62ms"
     x = re.findall(d["msgRegex"], str(msg))
     if len(x) == 0:
         raise Exception("startup msg not found")
-    startedMsg = x[len(x) - 1]
+    started_msg = x[len(x) - 1]
 
-    logger.info("[Service started msg] " + startedMsg, also_console=True)
     # 2019-06-18T07:17:18.524567
-    x = re.findall(d["startupDatetimeRegex"], startedMsg)
+    x = re.findall(d["startupDatetimeRegex"], started_msg)
     if len(x) == 0:
         raise Exception("startup msg not found")
-    startupDateTime = x[len(x) - 1]
-    response["startupDateTime"] = startupDateTime
+    startup_date_time = x[len(x) - 1]
+    response["startupDateTime"] = startup_date_time
 
-    x = re.findall(d["binaryStartupTimeRegex"], startedMsg)
-    binaryStartupTime = x[len(x) - 1]
-    response["binaryStartupTime"] = binaryStartupTime
+    x = re.findall(d["binaryStartupTimeRegex"], started_msg)
+    binary_startup_time = x[len(x) - 1]
+    response["binaryStartupTime"] = binary_startup_time
 
     return response
 
