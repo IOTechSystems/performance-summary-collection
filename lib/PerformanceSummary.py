@@ -22,5 +22,4 @@ class PerformanceSummary(object):
                                                              AllServicesStartupOneByOne.up_time,
                                                              AllServicesStartupOneByOne.up_time_without_recreate)
 
-        logger.info("Ping API latency:")
         PingResponse.show_the_summary_table_in_html()

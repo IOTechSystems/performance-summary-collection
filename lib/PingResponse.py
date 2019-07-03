@@ -15,6 +15,7 @@ class PingResponse(object):
 
 def show_the_summary_table_in_html():
     html = """ 
+    <h3 style="margin:0px">Ping API latency:</h3>
     <table style="border: 1px solid black;white-space: initial;"> 
         <tr style="border: 1px solid black;">
             <th style="border: 1px solid black;">
