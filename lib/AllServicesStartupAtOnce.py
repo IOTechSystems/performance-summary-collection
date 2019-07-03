@@ -48,10 +48,11 @@ class AllServicesStartupAtOnce(object):
                                                                                                     services_exclude_ruleengine)
 
     def show_the_comparison_table(self):
-        StartupTimeHandler.show_the_comparison_table_in_html(all_up_time, all_up_time_without_recreate)
+        StartupTimeHandler.show_the_comparison_table_in_html("Startup time:", all_up_time, all_up_time_without_recreate)
 
     def show_the_comparison_table_for_exclude_ruleengine_case(self):
-        StartupTimeHandler.show_the_comparison_table_in_html(all_up_time_exclude_ruleengine,
+        StartupTimeHandler.show_the_comparison_table_in_html("Startup time(exclude ruleengine):",
+                                                             all_up_time_exclude_ruleengine,
                                                              all_up_time_exclude_ruleengine_without_recreate)
 
 

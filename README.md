@@ -73,3 +73,5 @@ docker run --rm --env-file arm64.env -v $PWD:$PWD -w $PWD -v /var/run/docker.soc
 docker build -t iotech-releases.jfrog.io/robotframework:1.0.0 .
 docker build -f Dockerfile.arm64 -t iotech-releases.jfrog.io/robotframework-arm64:1.0.0 .
 ```
+
+## Run on the Jenkins

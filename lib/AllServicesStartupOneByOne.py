@@ -22,4 +22,5 @@ class AllServicesStartupOneByOne(object):
                                                                          self.start_time, up_time_without_recreate)
 
     def show_the_comparison_table(self):
-        StartupTimeHandler.show_the_comparison_table_in_html(up_time, up_time_without_recreate)
+        StartupTimeHandler.show_the_comparison_table_in_html("Startup time(deploy one by one):", up_time,
+                                                             up_time_without_recreate)

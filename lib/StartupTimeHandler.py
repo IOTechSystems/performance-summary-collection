@@ -122,8 +122,9 @@ def parse_started_time_by_service(msg, d):
     return response
 
 
-def show_the_comparison_table_in_html(case1, case2):
+def show_the_comparison_table_in_html(title, case1, case2):
     html = """ 
+    <h3 style="margin:0px">{}</h3>
     <table style="border: 1px solid black;white-space: initial;"> 
         <tr style="border: 1px solid black;">
             <th style="border: 1px solid black;">
@@ -142,7 +143,7 @@ def show_the_comparison_table_in_html(case1, case2):
                 Startup time(Container+Binary)<br/> without recreate container
             </th>
         </tr>
-    """
+    """.format(title)
 
     for k in case1:
         html = html + """ 
