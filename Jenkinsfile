@@ -1,5 +1,5 @@
 pipeline {
-    agent { label "ubuntu1604-vm1" }
+    agent { label "${env.SLAVE}" }
     stages {
         stage('Run test') {
             steps {
