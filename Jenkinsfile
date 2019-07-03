@@ -19,6 +19,7 @@ pipeline {
                         reportFiles: 'report.html',
                         reportName: 'Performance summary collection']
                 )
+            }
          }
     }
 }
