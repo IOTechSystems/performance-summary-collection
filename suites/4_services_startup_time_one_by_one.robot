@@ -91,20 +91,6 @@ Get support-scheduler start up without creating containers
     Then fetch startup time from service without recreate     support-scheduler
     [Teardown]  Shutdown EdgeX
 
-Get support-rulesengine start up with creating containers
-    Given dependecy services are deployed       support-logging     core-data       export-client
-    And start time is recorded
-    When deploy service      support-rulesengine
-    Then fetch startup time from service     support-rulesengine
-    [Teardown]  Stop EdgeX
-
-Get support-rulesengine start up without creating containers
-    Given dependecy services are deployed       support-logging     core-data       export-client
-    And start time is recorded
-    When deploy service      support-rulesengine
-    Then fetch startup time from service without recreate     support-rulesengine
-    [Teardown]  Shutdown EdgeX
-
 Get export-client start up with creating containers
     Given dependecy services are deployed       support-logging     core-data
     And start time is recorded

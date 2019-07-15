@@ -10,13 +10,9 @@ import copy
 
 client = docker.from_env()
 
-msgRegex = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z app=\S* \S*=\S* msg=\"Service started in: \d*.\d*m?s"
+msgRegex = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z app=\S* \S*=\S* msg=\"Service started in: \d*.\d*[mµ]?s"
 startupDatetimeRegex = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{0,6}"
-binaryStartupTimeRegex = r"\d*.\d*m?s"
-
-ruleengineRegexMsg = r"\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d+\] boot - \d  INFO \[main\] --- Application: Started Application in \d+.\d+ seconds"
-ruleengineRegexTime = r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{0,3}"
-ruleengineRegexBinaryStartupTime = r"\d*.\d* seconds"
+binaryStartupTimeRegex = r"\d*.\d*[mµ]?s"
 
 services = {
     "core-data": {"containerName": "edgex-core-data",
@@ -43,12 +39,11 @@ services = {
     "export-distro": {"containerName": "edgex-export-distro",
                       "msgRegex": msgRegex, "startupDatetimeRegex": startupDatetimeRegex,
                       "binaryStartupTimeRegex": binaryStartupTimeRegex},
-    "support-rulesengine": {"containerName": "edgex-support-rulesengine",
-                            "msgRegex": ruleengineRegexMsg, "startupDatetimeRegex": ruleengineRegexTime,
-                            "binaryStartupTimeRegex": ruleengineRegexBinaryStartupTime},
     "device-virtual": {"containerName": "edgex-device-virtual",
                        "msgRegex": msgRegex, "startupDatetimeRegex": startupDatetimeRegex,
                        "binaryStartupTimeRegex": binaryStartupTimeRegex},
+    # "xpert-manager": {"containerName": "xpert-manager",
+    #                    "msgRegex": msgRegex, "startupDatetimeRegex": startupDatetimeRegex},
 }
 
 
@@ -63,6 +58,7 @@ def fetch_service_start_up_time_by_container_name(d, start_time, result):
         try:
             container = client.containers.get(container_name)
             msg = container.logs(until=int(time.time()))
+            msg = msg.decode('unicode-escape').encode('latin1').decode('utf-8')  # for 'µ'
             res = parse_started_time_by_service(msg, d)
 
             startup_datetime_timestamp = convert_startup_datetime_to_timestamp(res["startupDateTime"])

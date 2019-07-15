@@ -8,13 +8,13 @@ import pytz
 class TestMathFunc(unittest.TestCase):
 
     def test_find(self):
-        regexMsg = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z app=\S* \S*=\S* msg=\"Service started in: \d*.\d*m?s"
+        regexMsg = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z app=\S* \S*=\S* msg=\"Service started in: \d*.\d*[mµ]?s"
         regexTime = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{0,6}"
-        regexTime2 = r"\d*.\d*m?s"
+        regexTime2 = r"\d*.\d*[mµ]?s"
 
         msg = """
             level=INFO ts=2019-06-18T07:17:18.5245679Z app=edgex-core-data source=main.go:70 msg="Service started in: 120.62ms  resolved..."\nlevel=Service started in" 
-            level=INFO ts=2019-06-18T07:17:18.5245679Z app=edgex-core-data source=main.go:70 msg="Service started in: 120.62ms  resolved..."\nlevel=Service started in" 
+            level=INFO ts=2019-06-18T07:17:18.5245679Z app=edgex-core-data source=main.go:70 msg="Service started in: 121.62µs  resolved..."\nlevel=Service started in" 
             level=INFO ts=2019-06-19T08:30:25.093438Z app=edgex-support-logging source=main.go:53 msg="Starting edgex-support-logging 1.0.0"
             [2019-06-19 08:50:25.925] boot - 7  WARN [main] --- URLConfigurationSource: No URLs will be polled as dynamic configuration sources.
             [2019-06-19 08:50:25.925] boot - 7  INFO [main] --- URLConfigurationSource: To enable URLs as dynamic configuration sources, define System property archaius.configurationSource.additionalUrls or make config.properties available on classpath.
@@ -48,7 +48,7 @@ class TestMathFunc(unittest.TestCase):
 
         msg = """
             level=INFO ts=2019-06-18T07:17:18.5245679Z app=edgex-core-data source=main.go:70 msg="Service started in: 120.62ms  resolved..."\nlevel=Service started in" 
-            level=INFO ts=2019-06-18T07:17:18.5245679Z app=edgex-core-data source=main.go:70 msg="Service started in: 120.62ms  resolved..."\nlevel=Service started in" 
+            level=INFO ts=2019-06-18T07:17:18.5245679Z app=edgex-core-data source=main.go:70 msg="Service started in: 120.62µs  resolved..."\nlevel=Service started in" 
             level=INFO ts=2019-06-19T08:30:25.093438Z app=edgex-support-logging source=main.go:53 msg="Starting edgex-support-logging 1.0.0"
             [2019-06-19 08:50:25.925] boot - 7  WARN [main] --- URLConfigurationSource: No URLs will be polled as dynamic configuration sources.
             [2019-06-19 08:50:25.925] boot - 7  INFO [main] --- URLConfigurationSource: To enable URLs as dynamic configuration sources, define System property archaius.configurationSource.additionalUrls or make config.properties available on classpath.

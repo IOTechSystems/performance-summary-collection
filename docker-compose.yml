@@ -1,278 +1,375 @@
-# /*******************************************************************************
-#  * Copyright 2018 Dell Inc.
-#  *
-#  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
-#  * in compliance with the License. You may obtain a copy of the License at
-#  *
-#  * http://www.apache.org/licenses/LICENSE-2.0
-#  *
-#  * Unless required by applicable law or agreed to in writing, software distributed under the License
-#  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
-#  * or implied. See the License for the specific language governing permissions and limitations under
-#  * the License.
-#  *
-#  * @author: Jim White, Dell
-#  * EdgeX Foundry, Delhi, version 0.7.1
-#  * added: Dec 10, 2018
-#  *******************************************************************************/
-
-version: '3'
+version: '3.7'
 volumes:
   db-data:
-  log-data:
-  consul-config:
   consul-data:
-  portainer_data:
+  grafana-data:
+  nodered-data:
+  export-data:
+  portainer-data:
+  vault-data:
 
 services:
-  volume:
-    image: ${volume}
-    container_name: edgex-files
-    networks:
-      - edgex-network
-    volumes:
-      - db-data:/data/db
-      - log-data:/edgex/logs
-      - consul-config:/consul/config
-      - consul-data:/consul/data
-      
-  consul:
-    image: ${consul}
+
+#################################################################
+# Registry Services
+#################################################################
+
+  core-consul:
+    image: consul:1.4.0
     ports:
-      - "8400:8400"
-      - "8500:8500"
-      - "8600:8600"
+    - "8400:8400"
+    - "8500:8500"
+    - "8600:8600"
     container_name: edgex-core-consul
+    hostname: edgex-core-consul
     networks:
       edgex-network:
         aliases:
-            - edgex-core-consul
+        - edgex-core-consul
     volumes:
-      - db-data:/data/db
-      - log-data:/edgex/logs
-      - consul-config:/consul/config
-      - consul-data:/consul/data
-    depends_on:
-      - volume  
+    - type: volume
+      source: consul-data
+      target: /consul
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "20"
 
-  config-seed:
-    image: ${configSeed}
-    container_name: edgex-config-seed
-    networks:
-      edgex-network:
-        aliases:
-            - edgex-core-config-seed
-    volumes:
-      - db-data:/data/db
-      - log-data:/edgex/logs
-      - consul-config:/consul/config
-      - consul-data:/consul/data
-    depends_on:
-      - volume
-      - consul
-      
-  mongo:
-    image: ${mongo}
-    container_name: edgex-mongo
-    networks:
-      edgex-network:
-        aliases:
-        - edgex-mongo
-    volumes:
-      - db-data:/data/db
-      - log-data:/edgex/logs
-      - consul-config:/consul/config
-      - consul-data:/consul/data
-    depends_on:
-      - volume
+#################################################################
+# Database Services
+#################################################################
 
-  logging:
-    image: ${supportLogging}
+  redis:
+    image: iotech-${EX_REPO}.jfrog.io/redis-${EX_ARCH}:${EX_VER}
+    entrypoint: redis-server /etc/redis/redis.conf --loglevel notice
     ports:
-      - "48061:48061"
-    container_name: edgex-support-logging
+    - "6379:6379"
+    container_name: edgex-redis
+    hostname: edgex-redis
     networks:
-      edgex-network:
-        aliases:
-        - edgex-support-logging
+    - edgex-network
     volumes:
-      - db-data:/data/db
-      - log-data:/edgex/logs
-      - consul-config:/consul/config
-      - consul-data:/consul/data
-    depends_on:
-      - config-seed
-      - mongo
-      - volume
+    - type: volume
+      source: db-data
+      target: /data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "20"
 
-  notifications:
-    image: ${supportNotifications}
-    ports:
-      - "48060:48060"
-    container_name: edgex-support-notifications
-    networks:
-      edgex-network:
-        aliases:
-        - edgex-support-notifications
-    volumes:
-      - db-data:/data/db
-      - log-data:/edgex/logs
-      - consul-config:/consul/config
-      - consul-data:/consul/data
-    depends_on:
-      - logging
+#################################################################
+# Core Services
+#################################################################
 
-  metadata:
-    image: ${coreMetadata}
+  core-metadata:
+    image: iotech-${EX_REPO}.jfrog.io/core-metadata-go-${EX_ARCH}:${EX_VER}
+    entrypoint: /core-metadata --registry=${EX_CONSUL} --profile=docker --confdir=/res
+      --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
       - "48081:48081"
     container_name: edgex-core-metadata
+    hostname: edgex-core-metadata
     networks:
-      edgex-network:
-        aliases:
-        - edgex-core-metadata
+      - edgex-network
     volumes:
-      - db-data:/data/db
-      - log-data:/edgex/logs
-      - consul-config:/consul/config
-      - consul-data:/consul/data
+    - type: bind
+      source: ./edgexpert/licenses
+      target: /edgexpert/licenses/
+      read_only: true
     depends_on:
-      - logging
+      - support-logging
+      - redis
+    environment:
+    - EDGEXPERT_LICENSE_PATH=/edgexpert/licenses/
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "20"
 
-  data:
-    image: ${coreData}
+  core-data:
+    image: iotech-${EX_REPO}.jfrog.io/core-data-go-${EX_ARCH}:${EX_VER}
+    entrypoint: /core-data --registry=${EX_CONSUL} --profile=docker --confdir=/res
+      --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
       - "48080:48080"
       - "5563:5563"
     container_name: edgex-core-data
+    hostname: edgex-core-data
     networks:
-      edgex-network:
-        aliases:
-        - edgex-core-data
+      - edgex-network
     volumes:
-      - db-data:/data/db
-      - log-data:/edgex/logs
-      - consul-config:/consul/config
-      - consul-data:/consul/data
+    - type: bind
+      source: ./edgexpert/licenses
+      target: /edgexpert/licenses/
+      read_only: true
     depends_on:
-      - logging
+      - support-logging
+      - redis
+    environment:
+    - EDGEXPERT_LICENSE_PATH=/edgexpert/licenses/
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "20"
 
-  command:
-    image: ${coreCommand}
+  core-command:
+    image: iotech-${EX_REPO}.jfrog.io/core-command-go-${EX_ARCH}:${EX_VER}
+    entrypoint: /core-command --registry=${EX_CONSUL} --profile=docker --confdir=/res
+      --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
       - "48082:48082"
     container_name: edgex-core-command
+    hostname: edgex-core-command
     networks:
-      edgex-network:
-        aliases:
-        - edgex-core-command
+      - edgex-network
     volumes:
-      - db-data:/data/db
-      - log-data:/edgex/logs
-      - consul-config:/consul/config
-      - consul-data:/consul/data
+    - type: bind
+      source: ./edgexpert/licenses
+      target: /edgexpert/licenses/
+      read_only: true
     depends_on:
-      - metadata
+      - core-metadata
+    environment:
+    - EDGEXPERT_LICENSE_PATH=/edgexpert/licenses/
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "20"
 
-  scheduler:
-     image: ${supportScheduler}
-     ports:
-       - "48085:48085"
-     container_name: edgex-support-scheduler
-     networks:
-       edgex-network:
-        aliases:
-        - edgex-support-scheduler
-     volumes:
-       - db-data:/data/db
-       - log-data:/edgex/logs
-       - consul-config:/consul/config
-       - consul-data:/consul/data
-     depends_on:
-       - logging
-     restart: always
+#################################################################
+# Export Services
+#################################################################
 
   export-client:
-     image: ${exportClient}
-     ports:
-       - "48071:48071"
-     container_name: edgex-export-client
-     networks:
-       edgex-network:
-        aliases:
-        - edgex-export-client
-     volumes:
-       - db-data:/data/db
-       - log-data:/edgex/logs
-       - consul-config:/consul/config
-       - consul-data:/consul/data
-     depends_on:
-       - data
-     environment:
-       - EXPORT_CLIENT_MONGO_URL=edgex-mongo
-       - EXPORT_CLIENT_DISTRO_HOST=export-distro
-       - EXPORT_CLIENT_CONSUL_HOST=edgex-config-seed
+    image: iotech-${EX_REPO}.jfrog.io/export-client-go-${EX_ARCH}:${EX_VER}
+    entrypoint: /export-client --registry=${EX_CONSUL} --profile=docker --confdir=/res
+      --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
+    ports:
+      - "48071:48071"
+    container_name: edgex-export-client
+    hostname: edgex-export-client
+    networks:
+      - edgex-network
+    volumes:
+    - type: bind
+      source: ./edgexpert/licenses
+      target: /edgexpert/licenses/
+      read_only: true
+    depends_on:
+      - core-data
+    environment:
+      - EXPORT_CLIENT_DISTRO_HOST=edgex-export-distro
+      - EXPORT_CLIENT_CONSUL_HOST=edgex-core-consul
+      - EDGEXPERT_LICENSE_PATH=/edgexpert/licenses/
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "20"
 
   export-distro:
-     image: ${exportDistro}
-     ports:
-       - "48070:48070"
-       - "5566:5566"
-     container_name: edgex-export-distro
-     networks:
-       edgex-network:
-        aliases:
-        - edgex-export-distro
-     volumes:
-       - db-data:/data/db
-       - log-data:/edgex/logs
-       - consul-config:/consul/config
-       - consul-data:/consul/data
-     depends_on:
-       - export-client
-     environment:
-       - EXPORT_DISTRO_CLIENT_HOST=export-client
-       - EXPORT_DISTRO_DATA_HOST=edgex-core-data
-       - EXPORT_DISTRO_CONSUL_HOST=edgex-config-seed
-       - EXPORT_DISTRO_MQTTS_CERT_FILE=none
-       - EXPORT_DISTRO_MQTTS_KEY_FILE=none
+    image: iotech-${EX_REPO}.jfrog.io/export-distro-go-${EX_ARCH}:${EX_VER}
+    entrypoint: /export-distro --registry=${EX_CONSUL} --profile=docker --confdir=/res
+      --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
+    ports:
+      - "48070:48070"
+    container_name: edgex-export-distro
+    hostname: edgex-export-distro
+    networks:
+      - edgex-network
+    volumes:
+    - type: volume
+      source: export-data
+      target: /export/keys
+    - type: bind
+      source: ./edgexpert/licenses
+      target: /edgexpert/licenses/
+      read_only: true
+    depends_on:
+      - export-client
+    environment:
+      - EXPORT_DISTRO_CLIENT_HOST=edgex-export-client
+      - EXPORT_DISTRO_DATA_HOST=edgex-core-data
+      - EXPORT_DISTRO_CONSUL_HOST=edgex-core-consul
+      - EXPORT_DISTRO_MQTTS_CERT_FILE=none
+      - EXPORT_DISTRO_MQTTS_KEY_FILE=none
+      - EDGEXPERT_LICENSE_PATH=/edgexpert/licenses/
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "20"
 
-  rulesengine:
-     image: ${supportRulesengine}
-     ports:
-       - "48075:48075"
-     container_name: edgex-support-rulesengine
-     networks:
-       edgex-network:
-        aliases:
-        - edgex-support-rulesengine
-     volumes:
-       - db-data:/data/db
-       - log-data:/edgex/logs
-       - consul-config:/consul/config
-       - consul-data:/consul/data
+#################################################################
+# Supporting Services
+#################################################################
+
+  support-notifications:
+    image: iotech-${EX_REPO}.jfrog.io/support-notifications-go-${EX_ARCH}:${EX_VER}
+    entrypoint: /support-notifications --registry=${EX_CONSUL} --profile=docker --confdir=/res
+      --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
+    ports:
+    - "48060:48060"
+    container_name: edgex-support-notifications
+    hostname: edgex-support-notifications
+    networks:
+    - edgex-network
+    volumes:
+    - type: bind
+      source: ./edgexpert/licenses
+      target: /edgexpert/licenses/
+      read_only: true
+    depends_on:
+    - core-metadata
+    - redis
+    environment:
+    - EDGEXPERT_LICENSE_PATH=/edgexpert/licenses/
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "20"
+
+  support-scheduler:
+    image: iotech-${EX_REPO}.jfrog.io/support-scheduler-go-${EX_ARCH}:${EX_VER}
+    entrypoint: /support-scheduler --registry=${EX_CONSUL} --profile=docker --confdir=/res
+      --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
+    ports:
+    - "48085:48085"
+    container_name: edgex-support-scheduler
+    hostname: edgex-support-scheduler
+    networks:
+    - edgex-network
+    volumes:
+    - type: bind
+      source: ./edgexpert/licenses
+      target: /edgexpert/licenses/
+      read_only: true
+    depends_on:
+    - core-metadata
+    environment:
+    - EDGEXPERT_LICENSE_PATH=/edgexpert/licenses/
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "20"
+
+  support-logging:
+    image: iotech-${EX_REPO}.jfrog.io/support-logging-go-${EX_ARCH}:${EX_VER}
+    entrypoint: /support-logging --registry=${EX_CONSUL} --profile=docker --confdir=/res
+    ports:
+    - "48061:48061"
+    container_name: edgex-support-logging
+    hostname: edgex-support-logging
+    networks:
+    - edgex-network
+    volumes:
+    - type: bind
+      source: ./edgexpert/licenses
+      target: /edgexpert/licenses/
+      read_only: true
+    depends_on:
+    - redis
+    environment:
+    - EDGEXPERT_LICENSE_PATH=/edgexpert/licenses/
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "20"
+
+#################################################################
+# Management Console
+#################################################################
+
+  xpert-manager:
+    image: iotech-${EX_REPO}.jfrog.io/iotech-manager-${EX_ARCH}:${EX_VER}
+    ports:
+      - "8080:8080"
+    container_name: xpert-manager
+    hostname: xpert-manager
+    networks:
+      - edgex-network
+    depends_on:
+      - core-metadata
+      - core-data
+      - core-command
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "20"
+
+#################################################################
+# Secrets and Security
+#################################################################
+
+  # vault:
+  #   image: iotech-${EX_REPO}.jfrog.io/edgex-vault-${EX_ARCH}:${EX_VER}
+  #   container_name: edgex-vault
+  #   hostname: edgex-vault
+  #   networks:
+  #   - edgex-network
+  #   ports:
+  #   - "8200:8200"
+  #   cap_add:
+  #   - "IPC_LOCK"
+  #   command: "server -log-level=info"
+  #   environment:
+  #   - 'VAULT_ADDR=https://edgex-vault:8200'
+  #   - 'VAULT_CONFIG_DIR=/vault/config'
+  #   - 'VAULT_UI=true'
+  #   volumes:
+  #   - type: volume
+  #     source: vault-data
+  #     target: /vault/
+  #   depends_on:
+  #   - core-consul
+
+  # vault-worker:
+  #   image: iotech-${EX_REPO}.jfrog.io/edgex-vault-worker-${EX_ARCH}:${EX_VER}
+  #   container_name: edgex-vault-worker
+  #   hostname: edgex-vault-worker
+  #   command: ["--init=true", "--debug=false", "--wait=10", "--insureskipverify=false"]
+  #   networks:
+  #   - edgex-network
+  #   volumes:
+  #   - type: volume
+  #     source: vault-data
+  #     target: /vault/
+  #   depends_on:
+  #   - core-consul
+  #   - vault
 
 #################################################################
 # Device Services
 #################################################################
 
   device-virtual:
-     image: ${deviceVirtual}
-     ports:
-       - "49990:49990"
-     container_name: edgex-device-virtual
-     networks:
-       edgex-network:
-        aliases:
-        - edgex-device-virtual
-     volumes:
-       - db-data:/data/db
-       - log-data:/edgex/logs
-       - consul-config:/consul/config
-       - consul-data:/consul/data
-     depends_on:
-       - data
-       - command
+    image: iotech-${EX_REPO}.jfrog.io/device-virtual-go-${EX_ARCH}:${EX_VER}
+    entrypoint: /device-virtual --profile=docker --confdir=/res ${EX_REG_ADDR}
+      --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
+    ports:
+      - "49990:49990"
+    container_name: edgex-device-virtual
+    hostname: edgex-device-virtual
+    networks:
+      - edgex-network
+    depends_on:
+      - core-metadata
+      - core-data
+      - core-command
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "20"
 
 networks:
   edgex-network:

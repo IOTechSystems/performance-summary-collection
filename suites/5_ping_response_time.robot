@@ -25,9 +25,6 @@ Measure the ping response time of ping API for each edgex service
     ${res} =    GET   http://localhost:48061/api/v1/ping        headers={ "Accept": "text/plain" }
     Record response   edgex-support-logging        ${res}
 
-    ${res} =    GET   http://localhost:48075/api/v1/ping        headers={ "Accept": "text/plain" }
-    Record response   edgex-support-rulesengine        ${res}
-
     ${res} =    GET   http://localhost:48060/api/v1/ping        headers={ "Accept": "text/plain" }
     Record response   edgex-support-notifications        ${res}
 

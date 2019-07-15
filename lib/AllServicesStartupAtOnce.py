@@ -6,8 +6,6 @@ import StartupTimeHandler
 # all_up_time : record startup time for deploy EdgeX at once
 all_up_time = dict()
 all_up_time_without_recreate = dict()
-all_up_time_exclude_ruleengine = dict()
-all_up_time_exclude_ruleengine_without_recreate = dict()
 
 
 class AllServicesStartupAtOnce(object):
@@ -27,33 +25,8 @@ class AllServicesStartupAtOnce(object):
         all_up_time_without_recreate = get_services_start_up_time_and_total_time(self.start_time,
                                                                                  StartupTimeHandler.services)
 
-    # Exclude ruleengine
-    def fetch_services_start_up_time_and_total_time_exclude_ruleengine(self):
-        global all_up_time_exclude_ruleengine
-
-        services_exclude_ruleengine = copy.deepcopy(StartupTimeHandler.services)
-        services_exclude_ruleengine.pop("support-rulesengine", None)  # exclude ruleengine
-
-        all_up_time_exclude_ruleengine = get_services_start_up_time_and_total_time(self.start_time,
-                                                                                   services_exclude_ruleengine)
-
-    # Exclude ruleengine
-    def fetch_services_start_up_time_and_total_time_without_creating_containers_exclude_ruleengine(self):
-        global all_up_time_exclude_ruleengine_without_recreate
-
-        services_exclude_ruleengine = copy.deepcopy(StartupTimeHandler.services)
-        services_exclude_ruleengine.pop("support-rulesengine", None)  # exclude ruleengine
-
-        all_up_time_exclude_ruleengine_without_recreate = get_services_start_up_time_and_total_time(self.start_time,
-                                                                                                    services_exclude_ruleengine)
-
     def show_the_comparison_table(self):
         StartupTimeHandler.show_the_comparison_table_in_html("Startup time:", all_up_time, all_up_time_without_recreate)
-
-    def show_the_comparison_table_for_exclude_ruleengine_case(self):
-        StartupTimeHandler.show_the_comparison_table_in_html("Startup time(exclude ruleengine):",
-                                                             all_up_time_exclude_ruleengine,
-                                                             all_up_time_exclude_ruleengine_without_recreate)
 
 
 def find_total_startup_time(result):

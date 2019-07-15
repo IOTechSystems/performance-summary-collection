@@ -9,23 +9,23 @@ import http.client
 import copy
 
 services = {
-    "core-data": {"composeName": "data", "port": 48080, "url": "/api/v1/ping"},
-    "core-metadata": {"composeName": "metadata", "port": 48081, "url": "/api/v1/ping"},
-    "core-command": {"composeName": "command", "port": 48082, "url": "/api/v1/ping"},
-    "support-logging": {"composeName": "logging", "port": 48061, "url": "/api/v1/ping"},
-    "support-notifications": {"composeName": "notifications", "port": 48060, "url": "/api/v1/ping"},
-    "support-scheduler": {"composeName": "scheduler", "port": 48085, "url": "/api/v1/ping"},
+    "core-data": {"composeName": "core-data", "port": 48080, "url": "/api/v1/ping"},
+    "core-metadata": {"composeName": "core-metadata", "port": 48081, "url": "/api/v1/ping"},
+    "core-command": {"composeName": "core-command", "port": 48082, "url": "/api/v1/ping"},
+    "support-logging": {"composeName": "support-logging", "port": 48061, "url": "/api/v1/ping"},
+    "support-notifications": {"composeName": "support-notifications", "port": 48060, "url": "/api/v1/ping"},
+    "support-scheduler": {"composeName": "support-scheduler", "port": 48085, "url": "/api/v1/ping"},
     "export-client": {"composeName": "export-client", "port": 48071, "url": "/api/v1/ping"},
     "export-distro": {"composeName": "export-distro", "port": 48070, "url": "/api/v1/ping"},
-    "support-rulesengine": {"composeName": "rulesengine", "port": 48075, "url": "/api/v1/ping"},
     "device-virtual": {"composeName": "device-virtual", "port": 49990, "url": "/api/v1/ping"},
+    "xpert-manager": {"composeName": "xpert-manager", "port": 8080, "url": ""},
 }
 
 
 class EdgeX(object):
 
     def __init__(self):
-        load_dotenv(dotenv_path=get_env_file(), verbose=True)
+        load_dotenv(dotenv_path="common.env", verbose=True)
 
     def pull_the_edgex_docker_images(self):
         cmd = docker_compose_cmd()
@@ -41,17 +41,6 @@ class EdgeX(object):
         # Check services are started
         check_dependencies_services_startup(services)
 
-    def edgex_is_deployed_exclude_ruleengine(self):
-        # Deploy services
-        cmd = docker_compose_cmd()
-        cmd.extend(['-f', 'docker-compose-exclude-ruleengine.yml', 'up', '-d'])
-        run_command(cmd)
-
-        # Check services are started
-        dependencies = copy.deepcopy(services)
-        dependencies.pop("support-rulesengine", None)  # exclude ruleengine
-        check_dependencies_services_startup(dependencies)
-
     def edgex_is_deployed_with_compose_file(self, file_name):
         # Deploy services
         cmd = docker_compose_cmd()
@@ -60,7 +49,6 @@ class EdgeX(object):
 
         # Check services are started
         dependencies = copy.deepcopy(services)
-        dependencies.pop("support-rulesengine", None)  # exclude ruleengine
         check_dependencies_services_startup(dependencies)
         time.sleep(10)
 
@@ -90,13 +78,11 @@ class EdgeX(object):
         for arg in args:
             dependencies[arg] = services[arg]
 
-        # Deploy services (default: mongo, consul, config-seed )
+        # Deploy services (default: redis, consul )
         cmd = docker_compose_cmd()
-        cmd.extend(['up', '-d', "mongo"])
+        cmd.extend(['up', '-d', "redis"])
         run_command(cmd)
-        cmd = docker_compose_cmd()
-        cmd.extend(['up', '-d', "config-seed"])
-        run_command(cmd)
+        
         for k in dependencies:
             cmd = docker_compose_cmd()
             cmd.extend(['up', '-d', dependencies[k]["composeName"]])
@@ -134,12 +120,14 @@ def run_command(cmd):
 
 def docker_compose_cmd():
     cwd = str(os.getcwd())
-    return ["docker", "run", "--rm",
-            "--env-file", get_env_file(), "-e", "PWD=" + cwd,
-            "-v", cwd + ":" + cwd, "-w", cwd, "-v",
+    userhome = str(os.getenv("userhome"))
+    return ["docker", "run", "--rm","-v",
+            userhome + "/.docker/config.json:/root/.docker/config.json", 
+            "-e", "EX_ARCH=" + ex_arch(), "--env-file", "common.env", 
+            "-v", cwd + ":" + cwd, "-w", cwd, "-v", 
             "/var/run/docker.sock:/var/run/docker.sock", get_docker_compose_image()]
 
-
+# Not use in this branch
 def get_env_file():
     if platform.machine() == "aarch32":
         return "arm.env"
@@ -152,10 +140,21 @@ def get_env_file():
         logger.error(msg)
         raise Exception(msg)
 
+def ex_arch():
+    if platform.machine() == "aarch32":
+        return "arm"
+    elif platform.machine() == "aarch64":
+        return "arm64"
+    elif platform.machine() == "x86_64":
+        return "x86_64"
+    else:
+        msg = "Unknow platform machine: " + platform.machine()
+        logger.error(msg)
+        raise Exception(msg)
 
 def get_docker_compose_image():
     try:
-        return str(os.environ["compose"])
+        return str("iotech-services.jfrog.io/compose_" + ex_arch() + ":1.25.0-rc1")
     except KeyError:
         logger.error("Please set the environment variable: compose")
         sys.exit(1)

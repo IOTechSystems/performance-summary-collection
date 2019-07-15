@@ -10,7 +10,7 @@ client = docker.from_env()
 global services
 services = {
     "edgex-core-consul": {"binary": ""},
-    "edgex-mongo": {"binary": ""},
+    "edgex-redis": {"binary": ""},
     "edgex-core-data": {"binary": "/core-data"},
     "edgex-core-metadata": {"binary": "/core-metadata"},
     "edgex-core-command": {"binary": "/core-command"},
@@ -19,7 +19,6 @@ services = {
     "edgex-support-scheduler": {"binary": "/support-scheduler"},
     "edgex-export-client": {"binary": "/export-client"},
     "edgex-export-distro": {"binary": "/export-distro"},
-    "edgex-support-rulesengine": {"binary": "/edgex/edgex-support-rulesengine/support-rulesengine.jar"},
     "edgex-device-virtual": {"binary": "/device-virtual"}
 }
 
