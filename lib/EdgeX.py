@@ -52,9 +52,29 @@ class EdgeX(object):
         dependencies.pop("support-rulesengine", None)  # exclude ruleengine
         check_dependencies_services_startup(dependencies)
 
+    def edgex_is_deployed_with_compose_file(self, file_name):
+        # Deploy services
+        cmd = docker_compose_cmd()
+        cmd.extend(['-f', file_name, 'up', '-d'])
+        run_command(cmd)
+
+        # Check services are started
+        dependencies = copy.deepcopy(services)
+        dependencies.pop("support-rulesengine", None)  # exclude ruleengine
+        check_dependencies_services_startup(dependencies)
+        time.sleep(10)
+
     def shutdown_edgex(self):
         cmd = docker_compose_cmd()
         cmd.append('down')
+        run_command(cmd)
+
+        cmd = ['docker', 'volume', 'prune', '-f']
+        run_command(cmd)
+
+    def shutdown_edgex_with_compose_file(self, file_name):
+        cmd = docker_compose_cmd()
+        cmd.extend(['-f', file_name, 'down'])
         run_command(cmd)
 
         cmd = ['docker', 'volume', 'prune', '-f']

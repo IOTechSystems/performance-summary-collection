@@ -130,7 +130,7 @@ Run on x86_64 machine
 
     $ cd /path/to/performance-summary-collection
     $ docker run --rm --network host -v $PWD:$PWD -w $PWD -v /var/run/docker.sock:/var/run/docker.sock  \
-        iotech-releases.jfrog.io/robotframework_x86_64:1.0.0 -d report .
+        iotech-releases.jfrog.io/robotframework-x86_64:1.0.0 -d report .
 
 Run on arm64 machine
 ======================
@@ -138,7 +138,7 @@ Run on arm64 machine
 
     $ cd /path/to/performance-summary-collection
     $ docker run --rm --network host -v $PWD:$PWD -w $PWD -v /var/run/docker.sock:/var/run/docker.sock  \
-        iotech-releases.jfrog.io/robotframework_arm64:1.0.0 -d report .
+        iotech-releases.jfrog.io/robotframework-arm64:1.0.0 -d report .
 
 After finishing the test, you can see the generated report under the **/path/to/performance-summary-collection/report**
 
