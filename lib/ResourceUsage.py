@@ -19,7 +19,8 @@ services = {
     "edgex-support-scheduler": {"binary": "/support-scheduler"},
     "edgex-export-client": {"binary": "/export-client"},
     "edgex-export-distro": {"binary": "/export-distro"},
-    "edgex-device-virtual": {"binary": "/device-virtual"}
+    "edgex-device-virtual": {"binary": "/device-virtual"},
+    "xpert-manager": {"binary": "/"}
 }
 
 

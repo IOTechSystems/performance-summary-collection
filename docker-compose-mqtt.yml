@@ -15,7 +15,7 @@ services:
 #################################################################
 
   core-consul:
-    image: consul:1.4.0
+    image: consul:1.5
     ports:
     - "8400:8400"
     - "8500:8500"
@@ -41,7 +41,7 @@ services:
 #################################################################
 
   redis:
-    image: iotech-${EX_REPO}.jfrog.io/redis-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-redis:${EX_VER}
     entrypoint: redis-server /etc/redis/redis.conf --loglevel notice
     ports:
     - "6379:6379"
@@ -64,7 +64,7 @@ services:
 #################################################################
 
   core-metadata:
-    image: iotech-${EX_REPO}.jfrog.io/core-metadata-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-core-metadata:${EX_VER}
     entrypoint: /core-metadata --registry=${EX_CONSUL} --profile=docker --confdir=/res
       --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
@@ -90,7 +90,7 @@ services:
         max-file: "20"
 
   core-data:
-    image: iotech-${EX_REPO}.jfrog.io/core-data-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-core-data:${EX_VER}
     entrypoint: /core-data --registry=${EX_CONSUL} --profile=docker --confdir=/res
       --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
@@ -117,7 +117,7 @@ services:
         max-file: "20"
 
   core-command:
-    image: iotech-${EX_REPO}.jfrog.io/core-command-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-core-command:${EX_VER}
     entrypoint: /core-command --registry=${EX_CONSUL} --profile=docker --confdir=/res
       --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
@@ -146,7 +146,7 @@ services:
 #################################################################
 
   export-client:
-    image: iotech-${EX_REPO}.jfrog.io/export-client-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-export-client:${EX_VER}
     entrypoint: /export-client --registry=${EX_CONSUL} --profile=docker --confdir=/res
       --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
@@ -173,7 +173,7 @@ services:
         max-file: "20"
 
   export-distro:
-    image: iotech-${EX_REPO}.jfrog.io/export-distro-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-export-distro:${EX_VER}
     entrypoint: /export-distro --registry=${EX_CONSUL} --profile=docker --confdir=/res
       --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
@@ -210,7 +210,7 @@ services:
 #################################################################
 
   support-notifications:
-    image: iotech-${EX_REPO}.jfrog.io/support-notifications-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-support-notifications:${EX_VER}
     entrypoint: /support-notifications --registry=${EX_CONSUL} --profile=docker --confdir=/res
       --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
@@ -236,7 +236,7 @@ services:
         max-file: "20"
 
   support-scheduler:
-    image: iotech-${EX_REPO}.jfrog.io/support-scheduler-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-support-scheduler:${EX_VER}
     entrypoint: /support-scheduler --registry=${EX_CONSUL} --profile=docker --confdir=/res
       --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
@@ -277,7 +277,7 @@ services:
   #       max-file: "20"
 
   support-logging:
-    image: iotech-${EX_REPO}.jfrog.io/support-logging-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-support-logging:${EX_VER}
     entrypoint: /support-logging --registry=${EX_CONSUL} --profile=docker --confdir=/res
     ports:
     - "48061:48061"
@@ -305,7 +305,7 @@ services:
 #################################################################
 
   xpert-manager:
-    image: iotech-${EX_REPO}.jfrog.io/iotech-manager-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-iotech-manager:${EX_VER}
     ports:
       - "8080:8080"
     container_name: xpert-manager
@@ -327,7 +327,7 @@ services:
 #################################################################
 
   # vault:
-  #   image: iotech-${EX_REPO}.jfrog.io/edgex-vault-${EX_ARCH}:${EX_VER}
+  #   image: iotechsys/dev-edgexpert-vault
   #   container_name: edgex-vault
   #   hostname: edgex-vault
   #   networks:
@@ -349,7 +349,7 @@ services:
   #   - core-consul
 
   # vault-worker:
-  #   image: iotech-${EX_REPO}.jfrog.io/edgex-vault-worker-${EX_ARCH}:${EX_VER}
+  #   image: iotechsys/dev-edgexpert-vault-worker
   #   container_name: edgex-vault-worker
   #   hostname: edgex-vault-worker
   #   command: ["--init=true", "--debug=false", "--wait=10", "--insureskipverify=false"]
@@ -368,7 +368,7 @@ services:
 #################################################################
 
   # device-opc-ua:
-  #   image: iotech-${EX_REPO}.jfrog.io/device-opc-ua-c-${EX_ARCH}:${EX_VER}
+  #   image: iotechsys/dev-edgexpert-device-opc-ua:${EX_VER}
   #   entrypoint: /device_opcua --confdir=/res --name=device-opcua ${EX_REG_ADDR}
   #   ports:
   #     - "49952:49952"
@@ -394,7 +394,7 @@ services:
   #       max-file: "20"
 
   # device-bacnet-ip:
-  #   image: iotech-${EX_REPO}.jfrog.io/device-bacnet-ip-${EX_ARCH}:${EX_VER}
+  #   image: iotechsys/dev-edgexpert-device-bacnet-ip:${EX_VER}
   #   entrypoint: /device-bacnet-c --confdir=/res --name=device-bacnet-ip ${EX_REG_ADDR}
   #   ports:
   #     - "49901:49901"
@@ -422,7 +422,7 @@ services:
   #       max-file: "20"
 
   # device-bacnet-mstp:
-  #   image: iotech-${EX_REPO}.jfrog.io/device-bacnet-mstp-${EX_ARCH}:${EX_VER}
+  #   image: iotechsys/dev-edgexpert-device-bacnet-mstp:${EX_VER}
   #   entrypoint: /device-bacnet-c --confdir=/res --name=device-bacnet-mtsp ${EX_REG_ADDR}
   #   ports:
   #     - "49902:49902"
@@ -449,28 +449,9 @@ services:
 #    devices:
 #      - /dev/ttyUSB0
 
-  device-virtual:
-    image: iotech-${EX_REPO}.jfrog.io/device-virtual-go-${EX_ARCH}:${EX_VER}
-    entrypoint: /device-virtual --profile=docker --confdir=/res ${EX_REG_ADDR}
-      --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
-    ports:
-      - "49990:49990"
-    container_name: edgex-device-virtual
-    hostname: edgex-device-virtual
-    networks:
-      - edgex-network
-    depends_on:
-      - core-metadata
-      - core-data
-      - core-command
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10mb"
-        max-file: "20"
-
+  
   # device-modbus:
-  #   image: iotech-${EX_REPO}.jfrog.io/device-modbus-go-${EX_ARCH}:${EX_VER}
+  #   image: iotechsys/dev-edgexpert-device-modbus:${EX_VER}
   #   entrypoint: /device-modbus --profile=docker --confdir=/res ${EX_REG_ADDR}
   #     --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
   #   ports:
@@ -496,7 +477,7 @@ services:
   #       max-size: "10mb"
   #       max-file: "20"
   mqttbroker:
-    image: eclipse-mosquitto
+    image: iotechsys/dev-edgexpert-mqtt-broker:${EX_VER}
     ports:
       - "1883:1883"
     networks:
@@ -505,7 +486,7 @@ services:
           - mqttbroker
           
   device-mqtt:
-    image: iotech-${EX_REPO}.jfrog.io/device-mqtt-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-device-mqtt:${EX_VER}
     entrypoint: /device-mqtt --profile=docker --confdir=/res ${EX_REG_ADDR}
       --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
@@ -533,7 +514,7 @@ services:
         max-file: "20"
 
 #   device-grove:
-#     image: iotech-${EX_REPO}.jfrog.io/device-grove-${EX_ARCH}:${EX_VER}
+#     image: iotechsys/dev-edgexpert-device-grove
 #     entrypoint: /device-grove --confdir=/res --name=device-grove ${EX_REG_ADDR}
 #     ports:
 #       - "49992:49992"
@@ -554,6 +535,27 @@ services:
 #         max-size: "10mb"
 #         max-file: "20"
 
+  device-virtual:
+    image: iotechsys/dev-edgexpert-device-virtual:${EX_VER}
+    entrypoint: /device-virtual --profile=docker --confdir=/res ${EX_REG_ADDR}
+      --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
+    ports:
+      - "49990:49990"
+    container_name: edgex-device-virtual
+    hostname: edgex-device-virtual
+    networks:
+      - edgex-network
+    depends_on:
+      - core-metadata
+      - core-data
+      - core-command
+      - device-mqtt
+      - export-distro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "20"
 
 networks:
   edgex-network:

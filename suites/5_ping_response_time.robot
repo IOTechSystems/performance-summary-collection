@@ -37,4 +37,7 @@ Measure the ping response time of ping API for each edgex service
     ${res} =    GET   http://localhost:49990/api/v1/ping        headers={ "Accept": "text/plain" }
     Record response   edgex-device-virtual        ${res}
 
+    ${res} =    GET   http://localhost:8080/        headers={ "Accept": "text/plain" }
+    Record response   xpert-manager        ${res}
+
     Then show the summary table

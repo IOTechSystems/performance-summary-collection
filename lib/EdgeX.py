@@ -25,7 +25,7 @@ services = {
 class EdgeX(object):
 
     def __init__(self):
-        load_dotenv(dotenv_path="common.env", verbose=True)
+        load_dotenv(dotenv_path=get_env_file(), verbose=True)
 
     def pull_the_edgex_docker_images(self):
         cmd = docker_compose_cmd()
@@ -82,7 +82,11 @@ class EdgeX(object):
         cmd = docker_compose_cmd()
         cmd.extend(['up', '-d', "redis"])
         run_command(cmd)
-        
+
+        cmd = docker_compose_cmd()
+        cmd.extend(['up', '-d', "core-consul"])
+        run_command(cmd)
+
         for k in dependencies:
             cmd = docker_compose_cmd()
             cmd.extend(['up', '-d', dependencies[k]["composeName"]])
@@ -121,11 +125,11 @@ def run_command(cmd):
 def docker_compose_cmd():
     cwd = str(os.getcwd())
     userhome = str(os.getenv("userhome"))
-    return ["docker", "run", "--rm","-v",
-            userhome + "/.docker/config.json:/root/.docker/config.json", 
-            "-e", "EX_ARCH=" + ex_arch(), "--env-file", "common.env", 
-            "-v", cwd + ":" + cwd, "-w", cwd, "-v", 
-            "/var/run/docker.sock:/var/run/docker.sock", get_docker_compose_image()]
+    return ["docker", "run", "--rm", "--env-file", get_env_file(),
+            "-v", userhome + "/.docker/config.json:/root/.docker/config.json", 
+            "-v", cwd + ":" + cwd, "-w", cwd,
+            "-v", "/var/run/docker.sock:/var/run/docker.sock",
+            get_docker_compose_image()]
 
 # Not use in this branch
 def get_env_file():
@@ -140,21 +144,9 @@ def get_env_file():
         logger.error(msg)
         raise Exception(msg)
 
-def ex_arch():
-    if platform.machine() == "aarch32":
-        return "arm"
-    elif platform.machine() == "aarch64":
-        return "arm64"
-    elif platform.machine() == "x86_64":
-        return "x86_64"
-    else:
-        msg = "Unknow platform machine: " + platform.machine()
-        logger.error(msg)
-        raise Exception(msg)
-
 def get_docker_compose_image():
     try:
-        return str("iotech-services.jfrog.io/compose_" + ex_arch() + ":1.25.0-rc1")
+        return str(os.environ["compose"])
     except KeyError:
         logger.error("Please set the environment variable: compose")
         sys.exit(1)

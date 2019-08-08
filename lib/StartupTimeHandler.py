@@ -11,6 +11,7 @@ import copy
 client = docker.from_env()
 
 msgRegex = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z app=\S* \S*=\S* msg=\"Service started in: \d*.\d*[mµ]?s"
+uimsgRegex = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z msg=\"Service started in: \d*.\d*[mµ]?s"
 startupDatetimeRegex = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{0,6}"
 binaryStartupTimeRegex = r"\d*.\d*[mµ]?s"
 
@@ -42,8 +43,9 @@ services = {
     "device-virtual": {"containerName": "edgex-device-virtual",
                        "msgRegex": msgRegex, "startupDatetimeRegex": startupDatetimeRegex,
                        "binaryStartupTimeRegex": binaryStartupTimeRegex},
-    # "xpert-manager": {"containerName": "xpert-manager",
-    #                    "msgRegex": msgRegex, "startupDatetimeRegex": startupDatetimeRegex},
+    "xpert-manager": {"containerName": "xpert-manager",
+                       "msgRegex": uimsgRegex, "startupDatetimeRegex": startupDatetimeRegex,
+                       "binaryStartupTimeRegex": binaryStartupTimeRegex},
 }
 
 
