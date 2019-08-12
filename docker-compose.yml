@@ -15,7 +15,7 @@ services:
 #################################################################
 
   core-consul:
-    image: consul:1.4.0
+    image: consul:1.5
     ports:
     - "8400:8400"
     - "8500:8500"
@@ -41,7 +41,7 @@ services:
 #################################################################
 
   redis:
-    image: iotech-${EX_REPO}.jfrog.io/redis-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-redis:${EX_VER}
     entrypoint: redis-server /etc/redis/redis.conf --loglevel notice
     ports:
     - "6379:6379"
@@ -64,7 +64,7 @@ services:
 #################################################################
 
   core-metadata:
-    image: iotech-${EX_REPO}.jfrog.io/core-metadata-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-core-metadata:${EX_VER}
     entrypoint: /core-metadata --registry=${EX_CONSUL} --profile=docker --confdir=/res
       --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
@@ -90,7 +90,7 @@ services:
         max-file: "20"
 
   core-data:
-    image: iotech-${EX_REPO}.jfrog.io/core-data-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-core-data:${EX_VER}
     entrypoint: /core-data --registry=${EX_CONSUL} --profile=docker --confdir=/res
       --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
@@ -117,7 +117,7 @@ services:
         max-file: "20"
 
   core-command:
-    image: iotech-${EX_REPO}.jfrog.io/core-command-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-core-command:${EX_VER}
     entrypoint: /core-command --registry=${EX_CONSUL} --profile=docker --confdir=/res
       --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
@@ -146,7 +146,7 @@ services:
 #################################################################
 
   export-client:
-    image: iotech-${EX_REPO}.jfrog.io/export-client-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-export-client:${EX_VER}
     entrypoint: /export-client --registry=${EX_CONSUL} --profile=docker --confdir=/res
       --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
@@ -173,7 +173,7 @@ services:
         max-file: "20"
 
   export-distro:
-    image: iotech-${EX_REPO}.jfrog.io/export-distro-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-export-distro:${EX_VER}
     entrypoint: /export-distro --registry=${EX_CONSUL} --profile=docker --confdir=/res
       --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
@@ -210,7 +210,7 @@ services:
 #################################################################
 
   support-notifications:
-    image: iotech-${EX_REPO}.jfrog.io/support-notifications-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-support-notifications:${EX_VER}
     entrypoint: /support-notifications --registry=${EX_CONSUL} --profile=docker --confdir=/res
       --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
@@ -236,7 +236,7 @@ services:
         max-file: "20"
 
   support-scheduler:
-    image: iotech-${EX_REPO}.jfrog.io/support-scheduler-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-support-scheduler:${EX_VER}
     entrypoint: /support-scheduler --registry=${EX_CONSUL} --profile=docker --confdir=/res
       --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:
@@ -261,7 +261,7 @@ services:
         max-file: "20"
 
   support-logging:
-    image: iotech-${EX_REPO}.jfrog.io/support-logging-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-support-logging:${EX_VER}
     entrypoint: /support-logging --registry=${EX_CONSUL} --profile=docker --confdir=/res
     ports:
     - "48061:48061"
@@ -289,7 +289,7 @@ services:
 #################################################################
 
   xpert-manager:
-    image: iotech-${EX_REPO}.jfrog.io/iotech-manager-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-iotech-manager:${EX_VER}
     ports:
       - "8080:8080"
     container_name: xpert-manager
@@ -311,7 +311,7 @@ services:
 #################################################################
 
   # vault:
-  #   image: iotech-${EX_REPO}.jfrog.io/edgex-vault-${EX_ARCH}:${EX_VER}
+  #   image: iotechsys/dev-edgexpert-vault:${EX_VER}
   #   container_name: edgex-vault
   #   hostname: edgex-vault
   #   networks:
@@ -333,7 +333,7 @@ services:
   #   - core-consul
 
   # vault-worker:
-  #   image: iotech-${EX_REPO}.jfrog.io/edgex-vault-worker-${EX_ARCH}:${EX_VER}
+  #   image: iotechsys/dev-edgexpert-vault-worker:${EX_VER}
   #   container_name: edgex-vault-worker
   #   hostname: edgex-vault-worker
   #   command: ["--init=true", "--debug=false", "--wait=10", "--insureskipverify=false"]
@@ -352,7 +352,7 @@ services:
 #################################################################
 
   device-virtual:
-    image: iotech-${EX_REPO}.jfrog.io/device-virtual-go-${EX_ARCH}:${EX_VER}
+    image: iotechsys/dev-edgexpert-device-virtual:${EX_VER}
     entrypoint: /device-virtual --profile=docker --confdir=/res ${EX_REG_ADDR}
       --setting=Logging/EnableRemote:${EX_REMOTE_LOGGING}
     ports:

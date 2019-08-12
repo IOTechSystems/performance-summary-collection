@@ -57,9 +57,9 @@ class EventExportedTime(object):
             logger.info("Registration Added.", also_console=True)
         else:
             raise Exception("Fail to add registration. status:" + str(r1.status))
-
+        
         # Sleep for device-virtual to generate the event
-        time.sleep(60)
+        time.sleep(75)
 
     def query_event(self):
         result["devices"]["Random-Integer-Device"] = get_device_events("Random-Integer-Device")
