@@ -1,7 +1,8 @@
-from robot.api import logger
+import math
 import http.client
 import json
 import time
+from robot.api import logger
 
 global result
 result = {
@@ -39,7 +40,7 @@ class EventExportedTime(object):
                 "publisher": "EdgeX"},
             "format": "JSON",
             "filter": {
-                "deviceIdentifiers": ["Random-Integer-Device", "Random-Float-Device", "Random-Boolean-Device"]},
+                "deviceIdentifiers": ["Random-Integer-Device", "Random-UnsignedInteger-Device", "Random-Boolean-Device"]},
             "enable": True,
             "destination": "MQTT_TOPIC"
         }
@@ -57,20 +58,21 @@ class EventExportedTime(object):
             logger.info("Registration Added.", also_console=True)
         else:
             raise Exception("Fail to add registration. status:" + str(r1.status))
-        
+
         # Sleep for device-virtual to generate the event
-        time.sleep(75)
+        time.sleep(100)
 
     def query_event(self):
         result["devices"]["Random-Integer-Device"] = get_device_events("Random-Integer-Device")
         result["devices"]["Random-Boolean-Device"] = get_device_events("Random-Boolean-Device")
-        result["devices"]["Random-Float-Device"] = get_device_events("Random-Float-Device")
+        result["devices"]["Random-UnsignedInteger-Device"] = get_device_events("Random-UnsignedInteger-Device")
 
     def fetch_the_exported_time(self):
         events = []
         for device in result["devices"]:
             for event in result["devices"][device]:
                 if "pushed" in event:
+                    event["origin"] = get_origin_time(event["origin"])
                     event["exported"] = event["pushed"] - event["origin"]
                     events.append(event)
                 else:
@@ -112,9 +114,12 @@ def show_the_summary_table_in_html():
             """.format(device)
 
         for event in result["devices"][device]:
-            html = html + """ 
-                    <td style="border: 1px solid black;">{} ms <br/>({} - {})</td>
-                """.format(event["exported"], event["pushed"], event["origin"])
+            if event["exported"] == "":
+                html = html + """<td style="border: 1px solid black;"> N/A </td>"""
+            else:
+                html = html + """ 
+                        <td style="border: 1px solid black;">{} ms <br/>({} - {})</td>
+                    """.format(event["exported"], event["pushed"], event["origin"])
 
         html = html + "</tr>"
 
@@ -136,9 +141,9 @@ def get_device_events(device):
         raise Exception("Fail to enable MarkPushed.")
 
 
-def calculate_exported_time(dic):
-    for event in dic:
-        if "pushed" in event:
-            event["exported"] = event["pushed"] - event["origin"]
-        else:
-            event["exported"] = ""
+# check origin time is nanoseconds level and convert to milliseconds level
+def get_origin_time(origin_time):
+    if origin_time > math.pow(10, 18):
+        origin_time = int(origin_time / math.pow(10, 6))
+
+    return origin_time

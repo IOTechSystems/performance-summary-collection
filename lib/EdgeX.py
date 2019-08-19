@@ -25,7 +25,7 @@ services = {
 class EdgeX(object):
 
     def __init__(self):
-        load_dotenv(dotenv_path=get_env_file(), verbose=True)
+        load_dotenv(dotenv_path="common.env", verbose=True)
 
     def pull_the_edgex_docker_images(self):
         cmd = docker_compose_cmd()
@@ -125,7 +125,7 @@ def run_command(cmd):
 def docker_compose_cmd():
     cwd = str(os.getcwd())
     userhome = str(os.getenv("userhome"))
-    return ["docker", "run", "--rm", "--env-file", get_env_file(),
+    return ["docker", "run", "--rm", "--env-file", "common.env",
             "-v", userhome + "/.docker/config.json:/root/.docker/config.json", 
             "-v", cwd + ":" + cwd, "-w", cwd,
             "-v", "/var/run/docker.sock:/var/run/docker.sock",
@@ -146,7 +146,9 @@ def get_env_file():
 
 def get_docker_compose_image():
     try:
-        return str(os.environ["compose"])
+        # return str(os.environ["compose"])
+        arch = str(os.getenv("arch"))
+        return str("iotech-services.jfrog.io/compose_"+ arch +":1.25.0-rc1")
     except KeyError:
         logger.error("Please set the environment variable: compose")
         sys.exit(1)
