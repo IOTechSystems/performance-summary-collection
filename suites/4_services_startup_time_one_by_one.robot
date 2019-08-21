@@ -134,7 +134,7 @@ Get device-virtual start up without creating containers
     [Teardown]  Shutdown EdgeX
 
 Get xpert-manager start up with creating containers
-    Given dependecy services are deployed       support-logging     core-data       core-metadata       core-command       vault       vault-worker
+    Given dependecy services are deployed       support-logging     core-data       core-metadata       core-command
     And start time is recorded
     When deploy service      xpert-manager
     Then fetch startup time from service     xpert-manager
