@@ -141,7 +141,7 @@ Get xpert-manager start up with creating containers
     [Teardown]  Stop EdgeX
 
 Get xpert-manager start up without creating containers
-    Given dependecy services are deployed       support-logging     core-data       core-metadata       core-command       vault       vault-worker
+    Given dependecy services are deployed       support-logging     core-data       core-metadata       core-command
     And start time is recorded
     When deploy service      xpert-manager
     Then fetch startup time from service without recreate     xpert-manager

@@ -18,7 +18,7 @@ services = {
     "export-client": {"composeName": "export-client", "port": 48071, "url": "/api/v1/ping"},
     "export-distro": {"composeName": "export-distro", "port": 48070, "url": "/api/v1/ping"},
     "device-virtual": {"composeName": "device-virtual", "port": 49990, "url": "/api/v1/ping"},
-    "xpert-manager": {"composeName": "xpert-manager", "port": 8080, "url": ""},
+    "xpert-manager": {"composeName": "xpert-manager", "port": 8080, "url": ""}
 }
 
 
@@ -96,7 +96,17 @@ class EdgeX(object):
         check_dependencies_services_startup(dependencies)
 
     def deploy_service(self, service):
-        # Deploy service
+        # Deploy vault and vault-worker service, if testing service is xpert-manager
+        if service == "xpert-manager":
+            cmd = docker_compose_cmd()
+            cmd.extend(['up', '-d', "vault"])
+            run_command(cmd)
+
+            cmd = docker_compose_cmd()
+            cmd.extend(['up', '-d', "vault-worker"])
+            run_command(cmd)
+        
+        # Deploy testing service
         cmd = docker_compose_cmd()
         cmd.extend(['up', '-d', services[service]["composeName"]])
         run_command(cmd)

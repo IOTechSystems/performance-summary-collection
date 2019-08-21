@@ -7,6 +7,8 @@ volumes:
   export-data:
   portainer-data:
   vault-data:
+  vault-config-data:
+  vault-file-data:
 
 services:
 
@@ -327,10 +329,18 @@ services:
       - 'VAULT_UI=true'
     volumes:
       - type: volume
-        source: vault-data
-        target: /vault/
+        source: vault-config-data
+        target: /vault/config
+      - type: volume
+        source: vault-file-data
+        target: /vault/file
     depends_on:
       - core-consul
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "20"
 
   vault-worker:
     image: iotechsys/dev-edgexpert-vault-worker:${EX_VER}
@@ -341,11 +351,16 @@ services:
       - edgex-network
     volumes:
       - type: volume
-        source: vault-data
-        target: /vault/
+        source: vault-config-data
+        target: /vault/config
     depends_on:
       - core-consul
       - vault
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "20"
 
 #################################################################
 # Device Services
