@@ -291,7 +291,7 @@ services:
 #################################################################
 
   xpert-manager:
-    image: iotechsys/${EX_REPO}-iotech-manager:${EX_VER}
+    image: iotechsys/dev-edgexpert-iotech-manager:${EX_VER}
     container_name: xpert-manager
     hostname: xpert-manager
     entrypoint: /root/go-ui-server
