@@ -310,42 +310,42 @@ services:
 # Secrets and Security
 #################################################################
 
-  # vault:
-  #   image: iotechsys/dev-edgexpert-vault:${EX_VER}
-  #   container_name: edgex-vault
-  #   hostname: edgex-vault
-  #   networks:
-  #   - edgex-network
-  #   ports:
-  #   - "8200:8200"
-  #   cap_add:
-  #   - "IPC_LOCK"
-  #   command: "server -log-level=info"
-  #   environment:
-  #   - 'VAULT_ADDR=https://edgex-vault:8200'
-  #   - 'VAULT_CONFIG_DIR=/vault/config'
-  #   - 'VAULT_UI=true'
-  #   volumes:
-  #   - type: volume
-  #     source: vault-data
-  #     target: /vault/
-  #   depends_on:
-  #   - core-consul
+  vault:
+    image: iotechsys/dev-edgexpert-vault:${EX_VER}
+    container_name: edgex-vault
+    hostname: edgex-vault
+    networks:
+      - edgex-network
+    ports:
+      - "8200:8200"
+    cap_add:
+      - "IPC_LOCK"
+    command: "server -log-level=info"
+    environment:
+      - 'VAULT_ADDR=https://edgex-vault:8200'
+      - 'VAULT_CONFIG_DIR=/vault/config'
+      - 'VAULT_UI=true'
+    volumes:
+      - type: volume
+        source: vault-data
+        target: /vault/
+    depends_on:
+      - core-consul
 
-  # vault-worker:
-  #   image: iotechsys/dev-edgexpert-vault-worker:${EX_VER}
-  #   container_name: edgex-vault-worker
-  #   hostname: edgex-vault-worker
-  #   command: ["--init=true", "--debug=false", "--wait=10", "--insureskipverify=false"]
-  #   networks:
-  #   - edgex-network
-  #   volumes:
-  #   - type: volume
-  #     source: vault-data
-  #     target: /vault/
-  #   depends_on:
-  #   - core-consul
-  #   - vault
+  vault-worker:
+    image: iotechsys/dev-edgexpert-vault-worker:${EX_VER}
+    container_name: edgex-vault-worker
+    hostname: edgex-vault-worker
+    command: ["--init=true", "--debug=false", "--wait=10", "--insureskipverify=false"]
+    networks:
+      - edgex-network
+    volumes:
+      - type: volume
+        source: vault-data
+        target: /vault/
+    depends_on:
+      - core-consul
+      - vault
 
 #################################################################
 # Device Services
