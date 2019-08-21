@@ -6,7 +6,7 @@ volumes:
   nodered-data:
   export-data:
   portainer-data:
-  vault-data:
+  xpert-manager-data:
   vault-config-data:
   vault-file-data:
 
@@ -291,17 +291,32 @@ services:
 #################################################################
 
   xpert-manager:
-    image: iotechsys/dev-edgexpert-iotech-manager:${EX_VER}
-    ports:
-      - "8080:8080"
+    image: iotechsys/${EX_REPO}-iotech-manager:${EX_VER}
     container_name: xpert-manager
     hostname: xpert-manager
+    entrypoint: /root/go-ui-server
+    command: "--multi-user=true"
     networks:
       - edgex-network
+    ports:
+      - "8080:8080"
+    environment:
+      - 'VAULT_CA_FILE_PATH=/vault/config/pki/EdgeXFoundryCA/EdgeXFoundryCA.pem'
+      - 'VAULT_TOKEN_FILE_PATH=/vault/config/assets/resp-init.json'
+      - 'VAULT_ADDR=https://edgex-vault:8200'
+    volumes:
+      - type: volume
+        source: vault-config-data
+        target: /vault/config
+      - type: volume
+        source: xpert-manager-data
+        target: /xpert-manager/data
     depends_on:
       - core-metadata
       - core-data
       - core-command
+      - vault
+      - vault-worker
     logging:
       driver: "json-file"
       options:
