@@ -33,7 +33,7 @@ class EventExportedTime(object):
             "addressable": {
                 "name": "edgex_post_integer_data_to_mqtt",
                 "protocol": "TCP",
-                "address": "mqttbroker",
+                "address": "mqtt-broker",
                 "port": 1883,
                 "user": "", "password": "",
                 "topic": "Random-Integer-Device-Topic",

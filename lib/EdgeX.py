@@ -147,8 +147,8 @@ def get_env_file():
 def get_docker_compose_image():
     try:
         # return str(os.environ["compose"])
-        arch = str(os.getenv("arch"))
-        return str("iotech-services.jfrog.io/compose_"+ arch +":1.25.0-rc1")
+        #arch = str(os.getenv("arch"))
+        return str("iotechsys/dev-testing-compose:1.25.0")
     except KeyError:
         logger.error("Please set the environment variable: compose")
         sys.exit(1)
