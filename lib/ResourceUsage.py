@@ -9,17 +9,18 @@ client = docker.from_env()
 
 global services
 services = {
-    "edgex-core-consul": {"binary": ""},
-    "edgex-redis": {"binary": ""},
-    "edgex-core-data": {"binary": "/core-data"},
-    "edgex-core-metadata": {"binary": "/core-metadata"},
-    "edgex-core-command": {"binary": "/core-command"},
-    "edgex-support-logging": {"binary": "/support-logging"},
-    "edgex-support-notifications": {"binary": "/support-notifications"},
-    "edgex-support-scheduler": {"binary": "/support-scheduler"},
-    "edgex-export-client": {"binary": "/export-client"},
-    "edgex-export-distro": {"binary": "/export-distro"},
-    "edgex-device-virtual": {"binary": "/device-virtual"},
+    "consul": {"binary": ""},
+    "redis": {"binary": ""},
+    "core-data": {"binary": "/core-data"},
+    "core-metadata": {"binary": "/core-metadata"},
+    "core-command": {"binary": "/core-command"},
+    "support-logging": {"binary": "/support-logging"},
+    "support-notifications": {"binary": "/support-notifications"},
+    "support-scheduler": {"binary": "/support-scheduler"},
+    "export-client": {"binary": "/export-client"},
+    "export-distro": {"binary": "/export-distro"},
+    "app-service-mqtt-export": {"binary": "/app-service-configurable"},
+    "device-virtual": {"binary": "/device-virtual"},
     "xpert-manager": {"binary": "/"}
 }
 

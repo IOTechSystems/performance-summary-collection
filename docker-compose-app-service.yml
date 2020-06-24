@@ -172,64 +172,6 @@ services:
       - core-metadata
 
   #################################################################
-  # Export Services
-  #################################################################
-
-  export-client:
-    image: iotechsys/${EX_REPO}-export-client:${EX_VER}
-    container_name: export-client
-    hostname: export-client
-    ports:
-      - "48071:48071"
-    networks:
-      edgex-network:
-        aliases:
-          - edgex-export-client
-    environment:
-      <<: *common-variables
-      Service_Host: export-client
-      Clients_Distro_Host: export-distro
-    volumes:
-      - license-data:/edgexpert/licenses/:ro
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10mb"
-        max-file: "20"
-    depends_on:
-      - core-data
-
-  export-distro:
-    image: iotechsys/${EX_REPO}-export-distro:${EX_VER}
-    container_name: export-distro
-    hostname: export-distro
-    ports:
-      - "48070:48070"
-    networks:
-      edgex-network:
-        aliases:
-          - edgex-export-distro
-    environment:
-      <<: *common-variables
-      Service_Host: export-distro
-      Clients_Export_Host: export-client
-      MessageQueue_Host: core-data
-      Certificates_MQTTS_Cert: 'dummy.crt'
-      Certificates_MQTTS_Key: 'dummy.key'
-      Certificates_AWS_Cert: 'dummy.crt'
-      Certificates_AWS_Key: 'dummy.key'
-    volumes:
-      - export-data:/export/keys
-      - license-data:/edgexpert/licenses/:ro
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10mb"
-        max-file: "20"
-    depends_on:
-      - export-client
-
-  #################################################################
   # Application Services
   #################################################################
 
@@ -462,6 +404,24 @@ services:
       - "8888:80"
     environment:
       <<: *common-variables
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "20"
+
+  #################################################################
+  # Tools
+  #################################################################
+
+  mqtt-broker:
+    image: iotechsys/${EX_REPO}-mqtt-broker:${EX_VER}
+    container_name: mqtt-broker
+    hostname: mqtt-broker
+    networks:
+      - edgex-network
+    ports:
+      - "1883:1883"
     logging:
       driver: "json-file"
       options:

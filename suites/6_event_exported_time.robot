@@ -2,13 +2,21 @@
 Documentation   Measure the event exported time
 Library         ../lib/EdgeX.py
 Library         ../lib/EventExportedTime.py
-Suite Setup  EdgeX is deployed with compose file    docker-compose-mqtt.yml
-Suite Teardown  Shutdown EdgeX with compose file    docker-compose-mqtt.yml
 
 *** Test Cases ***
 Measure the event exported time
+    [Setup]  EdgeX is deployed with compose file  docker-compose-export-service.yml
     Given mark pushed config is enable
     And export registration is added
     When query event
     Then fetch the exported time
-    And show the summary table
+    And show the summary table  EXPORT-CLIENT
+    [Teardown]  Shutdown EdgeX with compose file  docker-compose-export-service.yml
+
+Measure the event exported time using app-service
+    [Setup]  EdgeX is deployed with compose file    docker-compose-mqtt.yml
+    sleep  100s
+    When query event
+    Then fetch the exported time
+    And show the summary table  APP-SERVICE-MQTT-EXPORT
+    [Teardown]  Shutdown EdgeX with compose file    docker-compose-mqtt.yml

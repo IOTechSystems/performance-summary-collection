@@ -16,31 +16,31 @@ startupDatetimeRegex = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{0,6}"
 binaryStartupTimeRegex = r"\d*.\d*[mµ]?s"
 
 services = {
-    "core-data": {"containerName": "edgex-core-data",
+    "core-data": {"containerName": "core-data",
                   "msgRegex": msgRegex, "startupDatetimeRegex": startupDatetimeRegex,
                   "binaryStartupTimeRegex": binaryStartupTimeRegex},
-    "core-metadata": {"containerName": "edgex-core-metadata",
+    "core-metadata": {"containerName": "core-metadata",
                       "msgRegex": msgRegex, "startupDatetimeRegex": startupDatetimeRegex,
                       "binaryStartupTimeRegex": binaryStartupTimeRegex},
-    "core-command": {"containerName": "edgex-core-command",
+    "core-command": {"containerName": "core-command",
                      "msgRegex": msgRegex, "startupDatetimeRegex": startupDatetimeRegex,
                      "binaryStartupTimeRegex": binaryStartupTimeRegex},
-    "support-logging": {"containerName": "edgex-support-logging",
+    "support-logging": {"containerName": "support-logging",
                         "msgRegex": msgRegex, "startupDatetimeRegex": startupDatetimeRegex,
                         "binaryStartupTimeRegex": binaryStartupTimeRegex},
-    "support-notifications": {"containerName": "edgex-support-notifications", "msgRegex": msgRegex,
+    "support-notifications": {"containerName": "support-notifications", "msgRegex": msgRegex,
                               "startupDatetimeRegex": startupDatetimeRegex,
                               "binaryStartupTimeRegex": binaryStartupTimeRegex},
-    "support-scheduler": {"containerName": "edgex-support-scheduler",
+    "support-scheduler": {"containerName": "support-scheduler",
                           "msgRegex": msgRegex, "startupDatetimeRegex": startupDatetimeRegex,
                           "binaryStartupTimeRegex": binaryStartupTimeRegex},
-    "export-client": {"containerName": "edgex-export-client",
+    "export-client": {"containerName": "export-client",
                       "msgRegex": msgRegex, "startupDatetimeRegex": startupDatetimeRegex,
                       "binaryStartupTimeRegex": binaryStartupTimeRegex},
-    "export-distro": {"containerName": "edgex-export-distro",
+    "export-distro": {"containerName": "export-distro",
                       "msgRegex": msgRegex, "startupDatetimeRegex": startupDatetimeRegex,
                       "binaryStartupTimeRegex": binaryStartupTimeRegex},
-    "device-virtual": {"containerName": "edgex-device-virtual",
+    "device-virtual": {"containerName": "device-virtual",
                        "msgRegex": msgRegex, "startupDatetimeRegex": startupDatetimeRegex,
                        "binaryStartupTimeRegex": binaryStartupTimeRegex},
     "xpert-manager": {"containerName": "xpert-manager",
@@ -100,7 +100,7 @@ def parse_started_time_by_service(msg, d):
     logger.info("Parse log from the service: " + d["containerName"], also_console=True)
     response = {"startupDateTime": "", "binaryStartupTime": ""}
 
-    # level=INFO ts=2019-06-18T07:17:18.5245679Z app=edgex-core-data source=main.go:70 msg="Service started in: 120.62ms"
+    # level=INFO ts=2019-06-18T07:17:18.5245679Z app=core-data source=main.go:70 msg="Service started in: 120.62ms"
     x = re.findall(d["msgRegex"], str(msg))
     if len(x) == 0:
         raise Exception("startup msg not found")

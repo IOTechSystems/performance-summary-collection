@@ -15,7 +15,7 @@ class EventExportedTime(object):
 
     def mark_pushed_config_is_enable(self):
         conn = http.client.HTTPConnection(host="localhost", port=8500)
-        conn.request(method="PUT", url="/v1/kv/edgex/core/1.0/edgex-export-distro/Writable/MarkPushed", body="true")
+        conn.request(method="PUT", url="/v1/kv/edgex/core/1.0/export-distro/Writable/MarkPushed", body="true")
         try:
             r1 = conn.getresponse()
         except Exception as e:
@@ -86,12 +86,12 @@ class EventExportedTime(object):
         if total_exported_time != 0:
             result["total_average_exported_time"] = total_exported_time / len(events)
 
-    def show_the_summary_table(self):
-        show_the_summary_table_in_html()
+    def show_the_summary_table(self, export_service):
+        show_the_summary_table_in_html(export_service)
 
 
-def show_the_summary_table_in_html():
-    html = """ 
+def show_the_summary_table_in_html(export_service):
+    html = export_service + """ 
     <h3 style="margin:0px">Event exported time:</h3>
     <div style="margin:0px">Total average exported time: {} ms</div>
     <table style="border: 1px solid black;white-space: initial;"> 
