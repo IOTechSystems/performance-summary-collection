@@ -20,4 +20,5 @@ class PerformanceSummary(object):
 
         PingResponse.show_the_summary_table_in_html()
 
-        EventExportedTime.show_the_summary_table_in_html()
+        EventExportedTime.show_the_summary_table_in_html("EXPORT_CLIENT")
+        EventExportedTime.show_the_summary_table_in_html("APP-SERVICE-MQTT-EXPORT")

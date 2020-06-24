@@ -21,6 +21,18 @@ services = {
     "xpert-manager": {"composeName": "xpert-manager", "port": 8080, "url": ""},
 }
 
+withoutExportServices = {
+    "core-data": {"composeName": "core-data", "port": 48080, "url": "/api/v1/ping"},
+    "core-metadata": {"composeName": "core-metadata", "port": 48081, "url": "/api/v1/ping"},
+    "core-command": {"composeName": "core-command", "port": 48082, "url": "/api/v1/ping"},
+    "support-logging": {"composeName": "support-logging", "port": 48061, "url": "/api/v1/ping"},
+    "support-notifications": {"composeName": "support-notifications", "port": 48060, "url": "/api/v1/ping"},
+    "support-scheduler": {"composeName": "support-scheduler", "port": 48085, "url": "/api/v1/ping"},
+    "app-service-mqtt-export": {"composeName": "app-service", "port": 48097, "url": "/api/v1/ping"},
+    "device-virtual": {"composeName": "device-virtual", "port": 49990, "url": "/api/v1/ping"},
+    "xpert-manager": {"composeName": "xpert-manager", "port": 8080, "url": ""},
+}
+
 
 class EdgeX(object):
 
@@ -48,7 +60,10 @@ class EdgeX(object):
         run_command(cmd)
 
         # Check services are started
-        dependencies = copy.deepcopy(services)
+        if 'export' in file_name:
+            dependencies = copy.deepcopy(services)
+        else:
+            dependencies = copy.deepcopy(withoutExportServices)
         check_dependencies_services_startup(dependencies)
         time.sleep(10)
 
@@ -84,7 +99,7 @@ class EdgeX(object):
         run_command(cmd)
 
         cmd = docker_compose_cmd()
-        cmd.extend(['up', '-d', "core-consul"])
+        cmd.extend(['up', '-d', "consul"])
         run_command(cmd)
 
         for k in dependencies:

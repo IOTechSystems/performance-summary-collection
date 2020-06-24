@@ -172,40 +172,62 @@ services:
       - core-metadata
 
   #################################################################
-  # Application Services
+  # Export Services
   #################################################################
 
-  # for pull image purpose only
-  # the real usage is defined in app-service.yml
-  app-service:
-    image: iotechsys/${EX_REPO}-app-configurable:${EX_VER}
-    container_name: app-service-${APP_NAME}
-    hostname: app-service-${APP_NAME}
+  export-client:
+    image: iotechsys/${EX_REPO}-export-client:${EX_VER}
+    container_name: export-client
+    hostname: export-client
     ports:
-      - "48097:48097"
+      - "48071:48071"
     networks:
       edgex-network:
         aliases:
-          - app-service-${APP_NAME}
+          - edgex-export-client
     environment:
-      - EDGEX_SECURITY_SECRET_STORE=false
-      - Service_Host=app-service-${APP_NAME}
-      - Registry_Host=edgex-core-consul
-      - Clients_CoreData_Host=core-data
-      - Clients_Logging_Host=support-logging
-      - MessageBus_SubscribeHost_Host=core-data
-      - Databases_Primary_Host=edgex-redis
-      - Databases_Primary_Type=redisdb
-      - Databases_Primary_Port=6379
-    entrypoint: /app-service-configurable --registry --confdir=/res --profile=${APP_NAME}
+      <<: *common-variables
+      Service_Host: export-client
+      Clients_Distro_Host: export-distro
     volumes:
-      - ./config/app-service/:/res
       - ./edgexpert/licenses:/edgexpert/licenses:ro
     logging:
       driver: "json-file"
       options:
         max-size: "10mb"
         max-file: "20"
+    depends_on:
+      - core-data
+
+  export-distro:
+    image: iotechsys/${EX_REPO}-export-distro:${EX_VER}
+    container_name: export-distro
+    hostname: export-distro
+    ports:
+      - "48070:48070"
+    networks:
+      edgex-network:
+        aliases:
+          - edgex-export-distro
+    environment:
+      <<: *common-variables
+      Service_Host: export-distro
+      Clients_Export_Host: export-client
+      MessageQueue_Host: core-data
+      Certificates_MQTTS_Cert: 'dummy.crt'
+      Certificates_MQTTS_Key: 'dummy.key'
+      Certificates_AWS_Cert: 'dummy.crt'
+      Certificates_AWS_Key: 'dummy.key'
+    volumes:
+      - export-data:/export/keys
+      - ./edgexpert/licenses:/edgexpert/licenses:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10mb"
+        max-file: "20"
+    depends_on:
+      - export-client
 
   #################################################################
   # Supporting Services
@@ -395,6 +417,7 @@ services:
       - consul
       - core-data
       - core-metadata
+
 
   #################################################################
   # Tools

@@ -109,7 +109,7 @@ services:
       Notifications_Sender: core-metadata
       Notifications_PostDeviceChanges: ${EX_SUPPORT_NOTIFICATION}
     volumes:
-      - license-data:/edgexpert/licenses/:ro
+      - ./edgexpert/licenses:/edgexpert/licenses:ro
     logging:
       driver: "json-file"
       options:
@@ -135,7 +135,7 @@ services:
       <<: *common-variables
       Service_Host: core-data
     volumes:
-      - license-data:/edgexpert/licenses/:ro
+      - ./edgexpert/licenses:/edgexpert/licenses:ro
     logging:
       driver: "json-file"
       options:
@@ -160,7 +160,7 @@ services:
       <<: *common-variables
       Service_Host: core-command
     volumes:
-      - license-data:/edgexpert/licenses/:ro
+      - ./edgexpert/licenses:/edgexpert/licenses:ro
     logging:
       driver: "json-file"
       options:
@@ -190,7 +190,7 @@ services:
       Service_Host: export-client
       Clients_Distro_Host: export-distro
     volumes:
-      - license-data:/edgexpert/licenses/:ro
+      - ./edgexpert/licenses:/edgexpert/licenses:ro
     logging:
       driver: "json-file"
       options:
@@ -220,7 +220,7 @@ services:
       Certificates_AWS_Key: 'dummy.key'
     volumes:
       - export-data:/export/keys
-      - license-data:/edgexpert/licenses/:ro
+      - ./edgexpert/licenses:/edgexpert/licenses:ro
     logging:
       driver: "json-file"
       options:
@@ -239,6 +239,12 @@ services:
     image: iotechsys/${EX_REPO}-app-configurable:${EX_VER}
     container_name: app-service-${APP_NAME}
     hostname: app-service-${APP_NAME}
+    ports:
+      - "48097:48097"
+    networks:
+      edgex-network:
+        aliases:
+          - app-service-${APP_NAME}
     environment:
       - EDGEX_SECURITY_SECRET_STORE=false
       - Service_Host=app-service-${APP_NAME}
@@ -251,13 +257,15 @@ services:
       - Databases_Primary_Port=6379
     entrypoint: /app-service-configurable --registry --confdir=/res --profile=${APP_NAME}
     volumes:
-      - $HOME/.edgexpert/res/:/res
-      - edgexpert_license-data:/edgexpert/licenses/:ro
+      - ./config/app-service:/res
+      - ./edgexpert/licenses:/edgexpert/licenses:ro
     logging:
       driver: "json-file"
       options:
         max-size: "10mb"
         max-file: "20"
+    depends_on:
+      - consul
 
   #################################################################
   # Supporting Services
@@ -277,7 +285,7 @@ services:
       <<: *common-variables
       Service_Host: support-notifications
     volumes:
-      - license-data:/edgexpert/licenses/:ro
+      - ./edgexpert/licenses:/edgexpert/licenses:ro
     logging:
       driver: "json-file"
       options:
@@ -303,7 +311,7 @@ services:
       IntervalActions_ScrubPushed_Host: core-data
       IntervalActions_ScrubAged_Host: core-data
     volumes:
-      - license-data:/edgexpert/licenses/:ro
+      - ./edgexpert/licenses:/edgexpert/licenses:ro
     logging:
       driver: "json-file"
       options:
@@ -331,42 +339,10 @@ services:
       Logging_EnableRemote: "false"
       Logging_File: "/edgex/log/edgex-support-logging.log"
     volumes:
-      - license-data:/edgexpert/licenses/:ro
+      - ./edgexpert/licenses:/edgexpert/licenses:ro
     depends_on:
       - consul
 
-  #################################################################
-  # System Management
-  #################################################################
-
-  sys-mgmt:
-    image: iotechsys/${EX_REPO}-sys-mgmt-agent:${EX_VER}
-    container_name: sys-mgmt
-    hostname: sys-mgmt
-    ports:
-      - "48090:48090"
-    networks:
-      - edgex-network
-    environment:
-      <<: *common-variables
-      Service_Host: sys-mgmt
-      ExecutorPath: /sys-mgmt-executor
-      MetricsMechanism: executor
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:z
-      - license-data:/edgexpert/licenses/:ro
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10mb"
-        max-file: "20"
-    depends_on:
-      - consul
-      - support-scheduler
-      - support-notifications
-      - core-command
-      - core-data
-      - core-metadata
 
   #################################################################
   # Management Console
@@ -396,30 +372,6 @@ services:
       - core-data
       - core-command
 
-  #################################################################
-  # Web Toolkit
-  #################################################################
-
-  profile-modeling:
-    image: iotechsys/${EX_REPO}-profile-modeling:${EX_VER}
-    container_name: profile-modeling
-    hostname: profile-modeling
-    ports:
-      - "3006:3006"
-    networks:
-      - edgex-network
-    environment:
-      <<: *common-variables
-    volumes:
-      - profile-modeling-data:/profile-modeling/data
-      - license-data:/edgexpert/licenses/:ro
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10mb"
-        max-file: "20"
-    depends_on:
-      - core-metadata
 
   #################################################################
   # Device Services
@@ -447,26 +399,6 @@ services:
       - consul
       - core-data
       - core-metadata
-
-  #################################################################
-  # Docs
-  #################################################################
-
-  docs:
-    image: iotechsys/${EX_REPO}-docs:${EX_VER}
-    container_name: edgexpert-docs
-    hostname: edgexpert-docs
-    networks:
-      - edgex-network
-    ports:
-      - "8888:80"
-    environment:
-      <<: *common-variables
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10mb"
-        max-file: "20"
 
 networks:
   edgex-network:

@@ -14,9 +14,8 @@ Measure the event exported time
     [Teardown]  Shutdown EdgeX with compose file  docker-compose-export-service.yml
 
 Measure the event exported time using app-service
-    [Setup]  EdgeX is deployed with compose file    docker-compose-mqtt.yml
-    sleep  100s
+    [Setup]  EdgeX is deployed with compose file    docker-compose-app-service.yml
     When query event
     Then fetch the exported time
     And show the summary table  APP-SERVICE-MQTT-EXPORT
-    [Teardown]  Shutdown EdgeX with compose file    docker-compose-mqtt.yml
+    [Teardown]  Shutdown EdgeX with compose file    docker-compose-app-service.yml
