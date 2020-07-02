@@ -248,6 +248,12 @@ services:
     image: iotechsys/${EX_REPO}-app-configurable:${EX_VER}
     container_name: app-service-${APP_NAME}
     hostname: app-service-${APP_NAME}
+    ports:
+      - "48097:48097"
+    networks:
+      edgex-network:
+        aliases:
+          - app-service-${APP_NAME}
     environment:
       - EDGEX_SECURITY_SECRET_STORE=false
       - Service_Host=app-service-${APP_NAME}
