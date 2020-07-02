@@ -15,7 +15,7 @@ class EventExportedTime(object):
 
     def mark_pushed_config_is_enable(self):
         conn = http.client.HTTPConnection(host="localhost", port=8500)
-        conn.request(method="PUT", url="/v1/kv/edgex/core/1.0/export-distro/Writable/MarkPushed", body="true")
+        conn.request(method="PUT", url="/v1/kv/edgex/core/1.0/edgex-export-distro/Writable/MarkPushed", body="true")
         try:
             r1 = conn.getresponse()
         except Exception as e:
@@ -36,7 +36,8 @@ class EventExportedTime(object):
                 "address": "mqtt-broker",
                 "port": 1883,
                 "user": "", "password": "",
-                "topic": "Random-Integer-Device-Topic",
+                #"topic": "Random-Integer-Device-Topic",
+                "topic": "events",
                 "publisher": "EdgeX"},
             "format": "JSON",
             "filter": {
@@ -59,10 +60,11 @@ class EventExportedTime(object):
         else:
             raise Exception("Fail to add registration. status:" + str(r1.status))
 
-        # Sleep for device-virtual to generate the event
-        time.sleep(100)
 
     def query_event(self):
+        # Sleep for device-virtual to generate the event
+        time.sleep(120)
+
         result["devices"]["Random-Integer-Device"] = get_device_events("Random-Integer-Device")
         result["devices"]["Random-Boolean-Device"] = get_device_events("Random-Boolean-Device")
         result["devices"]["Random-UnsignedInteger-Device"] = get_device_events("Random-UnsignedInteger-Device")
@@ -91,8 +93,8 @@ class EventExportedTime(object):
 
 
 def show_the_summary_table_in_html(export_service):
-    html = export_service + """ 
-    <h3 style="margin:0px">Event exported time:</h3>
+    html = """ 
+    <h3 style="margin:0px">""" + export_service + """: Event exported time:</h3>
     <div style="margin:0px">Total average exported time: {} ms</div>
     <table style="border: 1px solid black;white-space: initial;"> 
         <tr style="border: 1px solid black;">
