@@ -18,6 +18,7 @@ volumes:
 x-common-env-variables: &common-variables
   EDGEX_SECURITY_SECRET_STORE: "false"
   Registry_Host: edgex-core-consul
+  Clients_Data_Host: edgex-core-data
   Clients_CoreData_Host: edgex-core-data
   Clients_Notifications_Host: edgex-support-notifications
   Clients_Metadata_Host: edgex-core-metadata
@@ -97,6 +98,8 @@ services:
     image: iotechsys/${EX_REPO}-core-metadata:${EX_VER}
     container_name: core-metadata
     hostname: core-metadata
+    entrypoint: /core-metadata
+    command: "--confdir=res ${EX_USE_REGISTRY} ${EX_USE_CP}"
     ports:
       - "48081:48081"
     networks:
@@ -124,6 +127,8 @@ services:
     image: iotechsys/${EX_REPO}-core-data:${EX_VER}
     container_name: core-data
     hostname: core-data
+    entrypoint: /core-data
+    command: "--confdir=res ${EX_USE_REGISTRY} ${EX_USE_CP}"
     ports:
       - "48080:48080"
       - "5563:5563"
@@ -150,6 +155,8 @@ services:
     image: iotechsys/${EX_REPO}-core-command:${EX_VER}
     container_name: core-command
     hostname: core-command
+    entrypoint: /core-command
+    command: "--confdir=res ${EX_USE_REGISTRY} ${EX_USE_CP}"
     ports:
       - "48082:48082"
     networks:
@@ -175,18 +182,10 @@ services:
   # Application Services
   #################################################################
 
-  # for pull image purpose only
-  # the real usage is defined in app-service.yml
   app-service:
     image: iotechsys/${EX_REPO}-app-configurable:${EX_VER}
     container_name: app-service-${APP_NAME}
     hostname: app-service-${APP_NAME}
-    ports:
-      - "48097:48097"
-    networks:
-      edgex-network:
-        aliases:
-          - app-service-${APP_NAME}
     environment:
       - EDGEX_SECURITY_SECRET_STORE=false
       - Service_Host=app-service-${APP_NAME}
@@ -197,7 +196,8 @@ services:
       - Databases_Primary_Host=edgex-redis
       - Databases_Primary_Type=redisdb
       - Databases_Primary_Port=6379
-    entrypoint: /app-service-configurable --registry --confdir=/res --profile=${APP_NAME}
+    entrypoint: /app-service-configurable
+    command: "--confdir=res --profile=${APP_NAME} ${EX_USE_REGISTRY} ${EX_USE_CP}"
     volumes:
       - ./config/app-service/:/res
       - ./edgexpert/licenses:/edgexpert/licenses:ro
@@ -215,6 +215,8 @@ services:
     image: iotechsys/${EX_REPO}-support-notifications:${EX_VER}
     container_name: support-notifications
     hostname: support-notifications
+    entrypoint: /support-notifications
+    command: "--confdir=res ${EX_USE_REGISTRY} ${EX_USE_CP}"
     ports:
       - "48060:48060"
     networks:
@@ -239,6 +241,8 @@ services:
     image: iotechsys/${EX_REPO}-support-scheduler:${EX_VER}
     container_name: support-scheduler
     hostname: support-scheduler
+    entrypoint: /support-scheduler
+    command: "--confdir=res ${EX_USE_REGISTRY} ${EX_USE_CP}"
     ports:
       - "48085:48085"
     networks:
@@ -265,6 +269,8 @@ services:
     image: iotechsys/${EX_REPO}-support-logging:${EX_VER}
     container_name: support-logging
     hostname: support-logging
+    entrypoint: /support-logging
+    command: "--confdir=res ${EX_USE_REGISTRY} ${EX_USE_CP}"
     ports:
       - "48061:48061"
     networks:
@@ -291,6 +297,8 @@ services:
     image: iotechsys/${EX_REPO}-sys-mgmt-agent:${EX_VER}
     container_name: sys-mgmt
     hostname: sys-mgmt
+    entrypoint: /sys-mgmt-agent
+    command: "--confdir=res ${EX_USE_REGISTRY} ${EX_USE_CP}"
     ports:
       - "48090:48090"
     networks:
@@ -369,6 +377,7 @@ services:
     depends_on:
       - core-metadata
 
+
   #################################################################
   # Device Services
   #################################################################
@@ -377,6 +386,8 @@ services:
     image: iotechsys/${EX_REPO}-device-virtual:${EX_VER}
     container_name: device-virtual
     hostname: device-virtual
+    entrypoint: /device-virtual
+    command: "--confdir=res ${EX_USE_REGISTRY} ${EX_USE_CP}"
     ports:
       - "49990:49990"
     networks:
