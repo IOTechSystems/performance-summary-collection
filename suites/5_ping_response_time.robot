@@ -6,7 +6,7 @@ Library         REST
 Library         ../lib/EdgeX.py
 Library         ../lib/PingResponse.py
 Suite Setup  EdgeX is deployed
-Suite Teardown  Shutdown EdgeX
+#Suite Teardown  Shutdown EdgeX
 
 *** Test Cases ***
 Measure the ping response time of ping API for each edgex service

@@ -13,6 +13,8 @@ pipeline {
                             iotechsys/dev-testing-robotframework:1.0.0 -d report suites/5_ping_response_time.robot"
                         //     iotechsys/dev-testing-robotframework:1.0.0 -d report ."
 
+                        sh "docker ps -a; docker logs app-service-mqtt-export"
+
                         sh "docker run --rm -v ~/.docker/config.json:/root/.docker/config.json --network host \
                             -v ${env.WORKSPACE}:${env.WORKSPACE} -w ${env.WORKSPACE} \
                             -e userhome=${env.HOME} -v /var/run/docker.sock:/var/run/docker.sock \
