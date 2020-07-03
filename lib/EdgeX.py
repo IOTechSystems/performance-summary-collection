@@ -28,7 +28,7 @@ withoutExportServices = {
     "support-logging": {"composeName": "support-logging", "port": 48061, "url": "/api/v1/ping"},
     "support-notifications": {"composeName": "support-notifications", "port": 48060, "url": "/api/v1/ping"},
     "support-scheduler": {"composeName": "support-scheduler", "port": 48085, "url": "/api/v1/ping"},
-    "app-service-mqtt-export": {"composeName": "app-service", "port": 48097, "url": "/api/v1/ping"},
+    #"app-service-mqtt-export": {"composeName": "app-service", "port": 48097, "url": "/api/v1/ping"},
     "device-virtual": {"composeName": "device-virtual", "port": 49990, "url": "/api/v1/ping"},
     "xpert-manager": {"composeName": "xpert-manager", "port": 8080, "url": ""},
 }
