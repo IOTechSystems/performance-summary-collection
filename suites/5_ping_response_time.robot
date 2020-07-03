@@ -6,7 +6,7 @@ Library         REST
 Library         ../lib/EdgeX.py
 Library         ../lib/PingResponse.py
 Suite Setup  EdgeX is deployed
-#Suite Teardown  Shutdown EdgeX
+Suite Teardown  Shutdown EdgeX
 
 *** Test Cases ***
 Measure the ping response time of ping API for each edgex service
@@ -35,8 +35,8 @@ Measure the ping response time of ping API for each edgex service
     Record response   edgex-export-distro        ${res}
 
     ## app-service use /config/app-service/mqtt-export.toml profile
-#    ${res} =    GET   http://localhost:48097/api/v1/ping        headers={ "Accept": "text/plain" }
-#    Record response   app-service-mqtt-export        ${res}
+    ${res} =    GET   http://localhost:48097/api/v1/ping        headers={ "Accept": "text/plain" }
+    Record response   app-service-mqtt-export        ${res}
 
     ${res} =    GET   http://localhost:49990/api/v1/ping        headers={ "Accept": "text/plain" }
     Record response   edgex-device-virtual        ${res}
