@@ -213,6 +213,10 @@ services:
       options:
         max-size: "10mb"
         max-file: "20"
+    depends_on:
+      - consul
+      - core-data
+      - mqtt-broker
 
   #################################################################
   # Supporting Services
