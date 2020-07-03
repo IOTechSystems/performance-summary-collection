@@ -34,5 +34,8 @@ RUN echo "**** install Python ****" && \
     python3 -m pip install robotframework && \
     pip3 install docker  &&  \
     pip3 install -U python-dotenv  &&  \
+    pip3 install -U requests  &&  \
+    pip3 install -U robotframework-requests  &&  \
+    pip3 install -U paho-mqtt  &&  \
     pip3 install -U RESTinstance
 ENTRYPOINT ["sh", "/usr/local/bin/robot-entrypoint.sh"]
