@@ -12,7 +12,8 @@ pipeline {
                         sh "docker run --rm -v ~/.docker/config.json:/root/.docker/config.json --network host \
                             -v ${env.WORKSPACE}:${env.WORKSPACE} -w ${env.WORKSPACE} \
                             -e userhome=${env.HOME} -v /var/run/docker.sock:/var/run/docker.sock \
-                            iotechsys/dev-testing-robotframework:1.0.0 -d report suites/6_event_exported_time.robot"
+                            iotechsys/dev-testing-robotframework:1.0.0 --exclude skipped -d report suites/6_event_exported_time.robot"
+                         sh "docker ps -a; docker logs app-service-matt-export"
                     } catch (e){
                         echo "got error"
                     } finally {
