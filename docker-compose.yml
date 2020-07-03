@@ -358,41 +358,6 @@ services:
       - consul
 
   #################################################################
-  # System Management
-  #################################################################
-
-  sys-mgmt:
-    image: iotechsys/${EX_REPO}-sys-mgmt-agent:${EX_VER}
-    container_name: sys-mgmt
-    hostname: sys-mgmt
-    entrypoint: /sys-mgmt-agent
-    command: "--confdir=res ${EX_USE_REGISTRY} ${EX_USE_CP}"
-    ports:
-      - "48090:48090"
-    networks:
-      - edgex-network
-    environment:
-      <<: *common-variables
-      Service_Host: sys-mgmt
-      ExecutorPath: /sys-mgmt-executor
-      MetricsMechanism: executor
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:z
-      - ./edgexpert/licenses:/edgexpert/licenses:ro
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10mb"
-        max-file: "20"
-    depends_on:
-      - consul
-      - support-scheduler
-      - support-notifications
-      - core-command
-      - core-data
-      - core-metadata
-
-  #################################################################
   # Management Console
   #################################################################
 
@@ -419,32 +384,6 @@ services:
       - core-metadata
       - core-data
       - core-command
-
-  #################################################################
-  # Web Toolkit
-  #################################################################
-
-  profile-modeling:
-    image: iotechsys/${EX_REPO}-profile-modeling:${EX_VER}
-    container_name: profile-modeling
-    hostname: profile-modeling
-    ports:
-      - "3006:3006"
-    networks:
-      - edgex-network
-    environment:
-      <<: *common-variables
-    volumes:
-      - profile-modeling-data:/profile-modeling/data
-      - ./edgexpert/licenses:/edgexpert/licenses:ro
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10mb"
-        max-file: "20"
-    depends_on:
-      - core-metadata
-
 
   #################################################################
   # Device Services
