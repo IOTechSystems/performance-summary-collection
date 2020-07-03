@@ -267,7 +267,7 @@ services:
     entrypoint: /app-service-configurable
     command: "--confdir=res --profile=${APP_NAME} ${EX_USE_REGISTRY} ${EX_USE_CP}"
     volumes:
-      - $HOME/.edgexpert/res/:/res
+      - ./config/app-service:/res
       - ./edgexpert/licenses:/edgexpert/licenses:ro
     logging:
       driver: "json-file"

@@ -50,6 +50,7 @@ class EdgeX(object):
         cmd.extend(['up', '-d'])
         run_command(cmd)
 
+        time.sleep(10)
         # Check services are started
         check_dependencies_services_startup(services)
 
@@ -59,13 +60,14 @@ class EdgeX(object):
         cmd.extend(['-f', file_name, 'up', '-d'])
         run_command(cmd)
 
+        time.sleep(10)
+
         # Check services are started
         if 'export' in file_name:
             dependencies = copy.deepcopy(services)
         else:
             dependencies = copy.deepcopy(withoutExportServices)
         check_dependencies_services_startup(dependencies)
-        time.sleep(10)
 
     def shutdown_edgex(self):
         cmd = docker_compose_cmd()
