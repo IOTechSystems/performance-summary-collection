@@ -60,7 +60,7 @@ class EdgeX(object):
         cmd.extend(['-f', file_name, 'up', '-d'])
         run_command(cmd)
 
-        time.sleep(10)
+        time.sleep(30)
 
         # Check services are started
         if 'export' in file_name:
