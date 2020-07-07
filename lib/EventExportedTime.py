@@ -73,7 +73,9 @@ class EventExportedTime(object):
         result[case]["devices"]["Random-Boolean-Device"] = get_device_events("Random-Boolean-Device")
         result[case]["devices"]["Random-UnsignedInteger-Device"] = get_device_events("Random-UnsignedInteger-Device")
 
-    def fetch_the_exported_time_with_specified_db(self,case):
+    def fetch_the_exported_time_with_specified_db(self, case):
+        logger.info("Fetch the exported time from result:", also_console=True)
+        logger.info(json.dumps(result[case], indent=2), also_console=True)
         events = []
         for device in result[case]["devices"]:
             for event in result[case]["devices"][device]:
