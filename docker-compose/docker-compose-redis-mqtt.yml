@@ -369,6 +369,7 @@ services:
       EDGEX_SECURITY_SECRET_STORE: "false"
       Writable_Pipeline_Functions_MQTTSend_Addressable_Address: mqtt-broker
       Writable_LogLevel: DEBUG
+      Startup_Duration: 90
     networks:
       - edgex-network
 
