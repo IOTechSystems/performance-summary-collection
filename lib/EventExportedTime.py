@@ -3,6 +3,7 @@ import http.client
 import json
 import time
 from robot.api import logger
+import EdgeX
 
 global result
 result = {
@@ -74,6 +75,7 @@ class EventExportedTime(object):
         result[case]["devices"]["Random-UnsignedInteger-Device"] = get_device_events("Random-UnsignedInteger-Device")
 
     def fetch_the_exported_time_with_specified_db(self, case):
+        EdgeX.check_service_startup_by_port_and_url(48097, "/api/v1/ping")
         logger.info("Fetch the exported time from result:", also_console=True)
         logger.info(json.dumps(result[case], indent=2), also_console=True)
         events = []

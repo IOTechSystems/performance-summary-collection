@@ -8,7 +8,7 @@ pipeline {
                     try {
                         sh "docker run --rm -v ~/.docker/config.json:/root/.docker/config.json --network host \
                             -v ${env.WORKSPACE}:${env.WORKSPACE} -w ${env.WORKSPACE} -e userhome=${env.HOME} \
-                            -v /var/run/docker.sock:/var/run/docker.sock iotechsys/dev-testing-robotframework:1.0.1 --exclude skipped -d report ."
+                            -v /var/run/docker.sock:/var/run/docker.sock iotechsys/dev-testing-robotframework:1.0.1 ${params.CMD}"
                     } catch (e){
                         echo "got error"
                     } finally {

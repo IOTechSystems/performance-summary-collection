@@ -248,16 +248,37 @@ class EdgeX(object):
         # Check services are started
         logger.info("Check service " + service + " is startup...", also_console=True)
         check_service_startup(services[service])
-    
+
     def deploy_service_redis(self, service):
         # Deploy service
         cmd = docker_compose_cmd()
-        cmd.extend(['-f', composeFolder + composeFileRedisNoSecty,'up', '-d', services[service]["composeName"]])
+        cmd.extend(['-f', composeFolder + composeFileRedisNoSecty, 'up', '-d', services[service]["composeName"]])
         run_command(cmd)
 
         # Check services are started
         logger.info("Check service " + service + " is startup...", also_console=True)
         check_service_startup(services[service])
+
+    def check_service_startup_by_port_and_url(port, url):
+        retrytimes = int(os.environ["retryFetchStartupTimes"])
+        waittime = int(os.environ["waitTime"])
+        for i in range(retrytimes):
+            logger.info("Ping localhost " + port + url + " ... ", also_console=True)
+            conn = http.client.HTTPConnection(host="localhost", port=port)
+            conn.request(method="GET", url=url)
+            try:
+                r1 = conn.getresponse()
+            except:
+                time.sleep(waittime)
+                continue
+            logger.info(r1.status, also_console=True)
+            if int(r1.status) == 200:
+                logger.info("Service is startup.", also_console=True)
+                return True
+            else:
+                time.sleep(waittime)
+                continue
+        return False
 
 
 def run_command(cmd):
