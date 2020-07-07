@@ -173,7 +173,7 @@ def check_service_startup_by_port_and_url(port, url):
     retrytimes = int(os.environ["retryFetchStartupTimes"])
     waittime = int(os.environ["waitTime"])
     for i in range(retrytimes):
-        logger.info("Ping localhost " + port + url + " ... ", also_console=True)
+        logger.info("Ping localhost " + str(port) + url + " ... ", also_console=True)
         conn = http.client.HTTPConnection(host="localhost", port=port)
         conn.request(method="GET", url=url)
         try:
