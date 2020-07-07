@@ -78,15 +78,13 @@ class EventExportedTime(object):
         result[case]["devices"]["Random-UnsignedInteger-Device"] = get_device_events("Random-UnsignedInteger-Device")
 
     def fetch_the_exported_time_with_specified_db(self, case):
+        docker_logs("app-service-mqtt-export")
         check_service_startup_by_port_and_url(48097, "/api/v1/ping")
 
         logger.info("Fetch the exported time from result:", also_console=True)
         logger.info(json.dumps(result[case], indent=2), also_console=True)
 
-        logger.info("docker logs app-service-mqtt-export:", also_console=True)
-        container = client.containers.get("app-service-mqtt-export")
-        msg = container.logs(until=int(time.time()))
-        logger.info(msg, also_console=True)
+        docker_logs("app-service-mqtt-export")
 
         events = []
         for device in result[case]["devices"]:
@@ -167,6 +165,13 @@ def get_origin_time(origin_time):
         origin_time = int(origin_time / math.pow(10, 6))
 
     return origin_time
+
+
+def docker_logs(container):
+    logger.info("docker logs " + container + ":", also_console=True)
+    container = client.containers.get(container)
+    msg = container.logs(until=int(time.time()))
+    logger.info(msg, also_console=True)
 
 
 def check_service_startup_by_port_and_url(port, url):
