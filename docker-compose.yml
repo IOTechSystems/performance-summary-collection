@@ -274,6 +274,10 @@ services:
       options:
         max-size: "10mb"
         max-file: "20"
+    depends_on:
+      - consul
+      - core-data
+      - mqtt-broker
 
   #################################################################
   # Supporting Services
@@ -413,25 +417,6 @@ services:
       - consul
       - core-data
       - core-metadata
-
-
-  #################################################################
-  # Tools
-  #################################################################
-
-  mqtt-broker:
-    image: iotechsys/${EX_REPO}-mqtt-broker:${EX_VER}
-    container_name: mqtt-broker
-    hostname: mqtt-broker
-    networks:
-      - edgex-network
-    ports:
-      - "1883:1883"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10mb"
-        max-file: "20"
 
 networks:
   edgex-network:
